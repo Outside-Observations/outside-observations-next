@@ -79,13 +79,6 @@ export function setupFirstVisitTimeline({
   };
 
   if (dots.length > 0) {
-    tl.fromTo(
-      ring,
-      { rotation: -14, transformOrigin: '50% 50%' },
-      { rotation: 0, duration: timing.getCircleTime(7) + circleDuration - timing.startTime, ease: 'power1.out' },
-      timing.startTime
-    );
-
     dots.forEach((dot, index) => {
       tl.fromTo(
         dot,

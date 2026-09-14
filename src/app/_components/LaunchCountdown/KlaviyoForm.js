@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import styles from '@app/_assets/archive/closed.module.css';
+import { KLAVIYO_LIST_ID, KLAVIYO_SUBSCRIBE_URL } from '@/app/_helpers/newsletter/klaviyo';
 
 export default function KlaviyoForm() {
   const formRef = useRef(null);
@@ -58,7 +59,7 @@ export default function KlaviyoForm() {
         <form
           ref={formRef}
           className={styles.emailForm}
-          action="https://manage.kmail-lists.com/subscriptions/subscribe"
+          action={KLAVIYO_SUBSCRIBE_URL}
           method="POST"
           onSubmit={handleSubmit}
           noValidate
@@ -67,7 +68,7 @@ export default function KlaviyoForm() {
           <input
             type="hidden"
             name="g"
-            value="RdMqsP"
+            value={KLAVIYO_LIST_ID}
           />
           <input
             className={styles.emailInput}

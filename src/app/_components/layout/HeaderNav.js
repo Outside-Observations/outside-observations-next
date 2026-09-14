@@ -14,6 +14,7 @@ import HeaderVisitorCount from '@/app/_components/layout/HeaderVisitorCount';
 import MobileMenuButton from '@/app/_components/layout/MobileMenuButton';
 import HelpNav from '@/app/_components/layout/HelpNav';
 import NewsletterPopup from '@/app/_components/layout/NewsletterPopup';
+import MenuNewsletter from '@/app/_components/layout/MenuNewsletter';
 import { useRadioIframe } from '@/app/_components/shared/RadioIframeProvider';
 import {
   trackNavClick,
@@ -113,12 +114,12 @@ export default function HeaderNav({ newsletterTitle, newsletterDescription }) {
               innerNavBubble={true}
               href="/writings"
               section="writings"
-              label="Writings"
+              label="Editorial"
               onClick={() => trackNavClick('writings', 'same_page')}
             />
             <NavDropdown
               className="laboratory-nav"
-              label="OO Laboratory"
+              label="Labs"
               items={laboratoryItems}
               isActive={isLaboratoryActive}
             />
@@ -170,6 +171,7 @@ export default function HeaderNav({ newsletterTitle, newsletterDescription }) {
         <div className={styles.headerUtilities}>
           <HeaderSearch />
           <NewsletterPopup title={newsletterTitle} description={newsletterDescription} />
+          <MenuNewsletter />
           <HeaderVisitorCount />
         </div>
       </div>

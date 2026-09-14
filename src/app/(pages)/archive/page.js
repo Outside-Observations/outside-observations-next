@@ -1,3 +1,4 @@
+import ArchiveHero from '@/app/_components/Archive/features/list/ArchiveHero';
 import ArchiveListContent from '@/app/_components/Archive/features/list/ArchiveListContent';
 import { ErrorBoundary } from '@/app/_components/shared/error/ErrorBoundary';
 import { ArchiveErrorFallback } from '@/app/_components/shared/error/ErrorFallbacks';
@@ -62,6 +63,7 @@ export default function Archive() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
       />
+      <ArchiveHero />
       <ArchiveListContent />
     </ErrorBoundary>
   );

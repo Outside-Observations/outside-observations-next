@@ -70,8 +70,19 @@ body {
   transition: opacity var(--transition-time) var(--transition-effect);
 }
 
-body[data-page="writings"] {
+body[data-page="writings"],
+body[data-page="lab"] {
   overflow: visible;
+}
+
+/* The mobile menu modal covers the page: nothing should scroll behind it.
+   No overflow lock on html here - hiding its overflow would clamp the
+   scroll position to 0 and visibly jump the page behind the modal. The
+   modal itself contains its scrolling (overscroll-behavior). */
+@media screen and (max-width: 768px) {
+  body.mobile-nav-open {
+    overflow: hidden;
+  }
 }
 
 /* Show content after hydration (except home page - GSAP controls it completely) */

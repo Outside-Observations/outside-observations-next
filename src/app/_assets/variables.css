@@ -24,6 +24,8 @@
 
   /* Fonts */
   --font-family: 'courier', monospace;
+  --oracle-font-family: var(--font-oracle, 'Arial'), sans-serif;
+  --archive-hero-block: 0px;
   --font-weight: 400;
   --font-size: 10px;
   --line-height: 10px;
@@ -73,6 +75,9 @@
 @media (max-width: 768px) {
   :root {
     --responsive-padding: 4px;
+    /* Breathing room above the centred logo, and the anchor every
+       fixed header offset below is measured from. */
+    --mobile-header-top: 16px;
 
     --columns: 6;
     --first-line-offset: calc(var(--padding) + var(--column-width) * 1  + var(--column-gap) * 0 + var(--column-gap-half));
@@ -85,7 +90,21 @@
 
 @media screen and (max-width: 768px) {
   :root {
-    --archive-container-top-margin: calc(var(--responsive-padding) + 41px + 8px + var(--bubble-height) + 20px + var(--bubble-height) + 8px + var(--bubble-height) + 12px);
+    --archive-container-top-margin: calc(var(--mobile-header-top) + 41px + 8px + var(--bubble-height) + 20px + var(--bubble-height) + 12px);
   }
 }
 
+
+/* The archive index carries the hero title, everything below shifts down.
+   --hero-progress (written by ArchiveHero while the grid scrolls) scrubs the
+   reserved space back to zero, so the rows follow the gesture. */
+body[data-page="archive"] {
+  --archive-hero-base: 220px;
+  --archive-hero-block: calc(var(--archive-hero-base) * (1 - var(--hero-progress, 0)));
+}
+
+@media screen and (max-width: 768px) {
+  body[data-page="archive"] {
+    --archive-hero-base: 110px;
+  }
+}

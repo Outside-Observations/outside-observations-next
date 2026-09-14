@@ -1,12 +1,49 @@
+/* Big hero title on the archive index, fixed between the menu and the view
+   toggles. Everything below shifts down by --archive-hero-block. */
+.archiveHero {
+  position: fixed;
+  top: calc(34px + 41px + 20px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-family: var(--oracle-font-family);
+  font-weight: 700;
+  font-size: 90px;
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+  pointer-events: none;
+  /* Under the grid container (z-index 1): while scrubbing out, the title
+     slides behind the filters and the images, not over them. */
+  z-index: 0;
+  /* Scrubbed by --hero-progress (0 at rest, 1 after 200px of grid scroll):
+     the title follows the gesture instead of toggling at a threshold. */
+  opacity: calc(1 - var(--hero-progress, 0));
+  transform: translateY(calc(var(--hero-progress, 0) * -60px));
+}
+
+@media screen and (max-width: 768px) {
+  .archiveHero {
+    font-size: 38px;
+  }
+}
+
 .container {
   display: flex;
   flex-direction: column;
   gap: var(--gap);
   padding: 0 var(--gap);
-  margin-top: var(--archive-container-top-margin);
+  margin-top: calc(var(--archive-container-top-margin) + var(--archive-hero-block, 0px));
   position: relative;
   z-index: 1;
   transition: margin-top var(--transition-time) var(--transition-effect);
+}
+
+/* The margin is scrubbed frame by frame with the scroll, a timed transition
+   would only add lag on top of the gesture. Mobile used to keep it for the
+   drawer push, which the fullscreen menu replaced. */
+:global(body[data-page="archive"]) .container {
+  transition-duration: 0s;
 }
 
 .containerContent {
@@ -350,8 +387,12 @@
   pointer-events: none;
 }
 
-.container[data-view="images"] .archiveEntryImageWrapper:hover .archiveEntryImageOverlay {
-  opacity: 1;
+/* Pointer devices only: on touch this veil sticks after a tap, hiding the
+   image the user just tried to open. */
+@media (hover: hover) and (min-width: 769px) {
+  .container[data-view="images"] .archiveEntryImageWrapper:hover .archiveEntryImageOverlay {
+    opacity: 1;
+  }
 }
 
 .container[data-view="images"] .archiveEntryImageOverlayContent {
@@ -494,10 +535,6 @@
 }
 
 @media (max-width: 768px) {
-  :global(body.mobile-nav-open) .container {
-    margin-top: calc(var(--archive-container-top-margin) + (var(--bubble-height) + 8px) * 2);
-  }
-
   .containerLegend {
     display: none;
   }
@@ -531,7 +568,7 @@
   }
 
   .container[data-view="images"] .containerContent {
-    grid-template-columns: repeat(auto-fill, minmax(min(var(--archive-thumb-min-mobile, 170px), 100%), 1fr));
+    grid-template-columns: 1fr;
     row-gap: calc(var(--column-gap) * 2);
     padding-left: 5px;
     padding-right: 5px;
@@ -539,7 +576,7 @@
   }
 
   .container[data-view="images"] .archiveEntryImageContainer {
-    max-width: min(var(--archive-thumb-min-mobile, 170px), 100%);
+    max-width: none;
     contain-intrinsic-size: 200px;
   }
 
