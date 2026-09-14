@@ -129,15 +129,24 @@ export default function PageTransition({ children }) {
       // Set navigating flag (using ref for synchronous access)
       isNavigatingRef.current = true;
 
+      // The archive view-toggle row lives in the header (which stays visible)
+      // but is page-scoped: without this it would outlive the content fade,
+      // then vanish abruptly once data-page flips on the new route.
+      const pageChrome = document.querySelector('[class*="archiveNavOptions"]');
+      if (pageChrome) {
+        gsap.to(pageChrome, { opacity: 0, duration: 0.3, ease: 'power2.in' });
+      }
+
       // Fade out content to opacity 0 (nav stays visible - opacity 1)
       gsap.to(content, {
         opacity: 0,
         duration: 0.3,
         ease: 'power2.in',
         onComplete: () => {
-          // Navigate after content fade out
-          // CSS will handle nav position changes via data-page
-          // We can add nav animations here later if needed
+          // Navigate after content fade out. The page-scoped header row is
+          // left at opacity 0 on purpose: restoring it here would flash it
+          // back for the frames between now and the new route's commit.
+          // The pathname-change effect resets it on arrival.
           router.push(href);
         },
       });
@@ -204,6 +213,13 @@ export default function PageTransition({ children }) {
       contentFadeInAnimationRef.current.kill();
     }
 
+    // The page-scoped header row lives inside the nav, which fades in before
+    // the content. Hold it back so it lands with the content instead.
+    const pageChrome = document.querySelector('[class*="archiveNavOptions"]');
+    if (pageChrome) {
+      gsap.set(pageChrome, { opacity: 0 });
+    }
+
     const nav = navRef.current;
     if (nav) {
       navFadeInAnimationRef.current = gsap.to(nav, {
@@ -215,10 +231,11 @@ export default function PageTransition({ children }) {
         },
       });
     }
-    
+
     const content = contentRef.current;
     if (content) {
-      contentFadeInAnimationRef.current = gsap.to(content, {
+      const targets = pageChrome ? [content, pageChrome] : [content];
+      contentFadeInAnimationRef.current = gsap.to(targets, {
         opacity: 1,
         duration: 0.3,
         ease: 'power2.out',
@@ -226,6 +243,9 @@ export default function PageTransition({ children }) {
         onComplete: () => {
           isNavigatingRef.current = false;
           contentFadeInAnimationRef.current = null;
+          if (pageChrome) {
+            gsap.set(pageChrome, { clearProps: 'opacity' });
+          }
         },
       });
     }
@@ -259,6 +279,18 @@ export default function PageTransition({ children }) {
     setShowLoader(false);
     setLoaderComplete(false);
 
+    // The flag is normally reset by the fade-in's onComplete, but that tween
+    // can be killed by a quick follow-up navigation, leaving every later
+    // data-transition click swallowed (the site feels frozen). The route has
+    // changed, so the navigation is over: reset unconditionally.
+    isNavigatingRef.current = false;
+
+    // The header's page-scoped row (archive view toggles) sits outside the
+    // content wrapper, so it must ride the same tween as the content to
+    // appear in sync with it. Fading it via its own CSS animation desyncs
+    // on hard reloads, where no GSAP fade runs at all.
+    const pageChrome = document.querySelector('[class*="archiveNavOptions"]');
+
     // Handle home page header visibility (defensive check in case cookies are disabled)
     const isHomePage = pathname === '/';
     if (isHomePage && !isFirstWebsiteVisit()) {
@@ -270,11 +302,12 @@ export default function PageTransition({ children }) {
       navigationFadeInAnimationRef.current.kill();
     }
 
-    // Fade in new content
+    // Fade in new content (and the page-scoped header row with it)
     const content = contentRef.current;
     if (content) {
-      gsap.set(content, { opacity: 0 });
-      navigationFadeInAnimationRef.current = gsap.to(content, {
+      const targets = pageChrome ? [content, pageChrome] : [content];
+      gsap.set(targets, { opacity: 0 });
+      navigationFadeInAnimationRef.current = gsap.to(targets, {
         opacity: 1,
         duration: 0.3,
         ease: 'power2.out',
@@ -282,8 +315,13 @@ export default function PageTransition({ children }) {
         onComplete: () => {
           isNavigatingRef.current = false;
           navigationFadeInAnimationRef.current = null;
+          if (pageChrome) {
+            gsap.set(pageChrome, { clearProps: 'opacity' });
+          }
         },
       });
+    } else if (pageChrome) {
+      gsap.set(pageChrome, { clearProps: 'opacity' });
     }
     
     previousPathnameRef.current = pathname;

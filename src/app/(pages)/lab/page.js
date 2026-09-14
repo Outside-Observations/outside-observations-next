@@ -1,15 +1,26 @@
-import styles from '@app/_assets/lab/lab.module.css';
-import LabTypewriter from '@/app/_components/Lab/LabTypewriter';
-import LabSubmitProposalLink from '@/app/_components/Lab/LabSubmitProposalLink';
-import { getSiteSettings } from '@/app/_data/archive';
+import styles from '@app/_assets/lab/work-with-us.module.css';
 import { SITE_NAME, SITE_URL } from '@/lib/siteUrl';
 
 const baseUrl = SITE_URL;
 
+const CONTACT_MAILTO = 'mailto:contact@outsideobservations.com';
+
+const SERVICES = [
+  'Creative direction and advisory',
+  'Cultural strategy and research',
+  'Art advisory and curation',
+  'Brand positioning and development',
+  'Image and reference research',
+  'Art direction and visual identity',
+  'Editorial and publishing',
+  'Special projects and collaborations',
+  'Curation and sourcing',
+];
+
 export async function generateMetadata() {
-  const title = `Lab | ${SITE_NAME}`;
+  const title = `Work with us | ${SITE_NAME}`;
   const description =
-    `Submit a proposal and collaborate with ${SITE_NAME}. Get in touch for new projects and ideas.`;
+    `${SITE_NAME} works with creatives, brands, institutions, and individuals across culture. Get in touch for new projects and ideas.`;
 
   return {
     title,
@@ -38,21 +49,31 @@ export async function generateMetadata() {
   };
 }
 
-export default async function LabPage() {
-  const siteSettings = await getSiteSettings();
-  const labQuote = siteSettings?.labQuote || '';
-
+export default function WorkWithUsPage() {
   return (
     <div className={styles.container}>
-      <div className={styles.labContent}>
-        <LabTypewriter />
-      </div>
+      <h1 className={styles.title}>
+        Outside Observations works with creatives, brands, institutions, and
+        individuals across culture.
+      </h1>
 
-      <div className={styles.labQuote}>
-        {labQuote && <p>{labQuote}</p>}
-      </div>
+      <ul className={styles.tags}>
+        {SERVICES.map((service) => (
+          <li key={service} className={styles.tag}>
+            {service}
+          </li>
+        ))}
+      </ul>
 
-      <LabSubmitProposalLink />
+      <div className={styles.contact}>
+        <p>
+          If you have a project you think we should be involved in,{' '}
+          <a href={CONTACT_MAILTO}>[write to us.]</a>
+        </p>
+        <p>
+          For general inquiries: <a href={CONTACT_MAILTO}>[Email us.]</a>
+        </p>
+      </div>
     </div>
   );
 }

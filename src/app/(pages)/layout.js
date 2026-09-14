@@ -1,3 +1,4 @@
+import localFont from 'next/font/local';
 import '@app/_assets/variables.css';
 import '@app/_assets/globals.css';
 import styles from '@app/_assets/main.module.css';
@@ -57,6 +58,18 @@ const websiteJsonLd = {
   },
 };
 
+const abcOracle = localFont({
+  src: [
+    { path: '../_assets/fonts/ABCOracle-Regular.otf', weight: '400', style: 'normal' },
+    { path: '../_assets/fonts/ABCOracle-RegularItalic.otf', weight: '400', style: 'italic' },
+    { path: '../_assets/fonts/ABCOracle-Medium.otf', weight: '500', style: 'normal' },
+    { path: '../_assets/fonts/ABCOracle-Bold.otf', weight: '700', style: 'normal' },
+    { path: '../_assets/fonts/ABCOracle-BoldItalic.otf', weight: '700', style: 'italic' },
+  ],
+  variable: '--font-oracle',
+  display: 'swap',
+});
+
 export default async function RootLayout({ children }) {
   const siteSettings = await getSiteSettings();
   const newsletterTitle = siteSettings?.newsletter?.title ?? undefined;
@@ -65,7 +78,7 @@ export default async function RootLayout({ children }) {
   // Page type is set client-side by BodyPageTypeUpdater component
   // This allows static generation while still setting the correct data-page attribute
   return (
-    <html lang="en">
+    <html lang="en" className={abcOracle.variable} suppressHydrationWarning>
       <body>
         <script
           type="application/ld+json"

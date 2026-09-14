@@ -1,0 +1,115 @@
+.container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Elastic vertical spacing: shrinks with the viewport so the page
+     only scrolls once the content itself no longer fits. */
+  padding: clamp(110px, 17vh, 180px) var(--padding) clamp(40px, 8vh, 90px);
+}
+
+.title {
+  font-family: var(--oracle-font-family);
+  font-weight: 700;
+  font-size: 65px;
+  letter-spacing: -0.07em;
+  line-height: 1;
+  text-align: center;
+  max-width: 680px;
+  margin: 0 0 50px;
+}
+
+.tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
+  justify-items: center;
+  column-gap: 36px;
+  row-gap: 16px;
+}
+
+.tag {
+  font-size: 10px;
+  line-height: 1;
+  height: auto;
+  min-height: var(--bubble-height);
+  background-color: var(--nav-hover-color);
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  padding-top: 6px;
+  padding-right: var(--padding);
+  padding-bottom: 7px;
+  padding-left: var(--padding);
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.contact {
+  /* Pushed to the bottom of the viewport when there is room, with a
+     minimum gap above once space runs out. */
+  margin-top: auto;
+  padding-top: 50px;
+  font-family: var(--oracle-font-family);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.contact p {
+  margin: 0 auto 14px;
+  max-width: 270px;
+}
+
+.contact a {
+  color: #0000EE;
+}
+
+@media (hover: hover) {
+  .contact a:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 96px 10px 60px;
+  }
+
+  .title {
+    font-size: 38px;
+    margin-bottom: 30px;
+  }
+
+  /* One centered column, each tag keeping its own width */
+  .tags {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+  }
+
+  .tag {
+    font-size: 14px;
+    /* Room for the labels that wrap onto a second line */
+    line-height: 1.3;
+    white-space: normal;
+    height: auto;
+    min-height: var(--bubble-height);
+    justify-content: center;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .contact {
+    margin-top: 0;
+    padding-top: 44px;
+  }
+}

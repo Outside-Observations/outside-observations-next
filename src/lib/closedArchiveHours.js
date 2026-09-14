@@ -56,7 +56,13 @@ function getTimeInZone(timeZone) {
  * True when current time is in the closed window.
  * @param {string | null | undefined} [timeZone] - IANA zone (e.g. 'UTC'). If omitted, uses CLOSED_TIMEZONE when set, else local time.
  */
+/** Local kill switch: set NEXT_PUBLIC_DISABLE_CLOSED_ARCHIVE=true in .env.local
+    to work at any hour. Absent from Netlify, so staging and production keep
+    the real timetable. */
+const CLOSED_HOURS_DISABLED = process.env.NEXT_PUBLIC_DISABLE_CLOSED_ARCHIVE === 'true';
+
 export function isInClosedHours(timeZone) {
+  if (CLOSED_HOURS_DISABLED) return false;
   const zone = timeZone ?? CLOSED_TIMEZONE;
   const hour = zone && String(zone).trim() ? getHourInZone(zone) : new Date().getHours();
   return hour >= CLOSED_START_HOUR && hour < CLOSED_END_HOUR;

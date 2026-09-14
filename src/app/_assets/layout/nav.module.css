@@ -54,6 +54,8 @@
 }
 
 .headerTopRow {
+  font-family: var(--oracle-font-family);
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: var(--padding);
@@ -328,7 +330,7 @@
   display: none;
   width: fit-content;
   position: fixed;
-  top: calc(34px + 41px + 28px);
+  top: calc(34px + 41px + 28px + var(--archive-hero-block, 0px));
   left: var(--padding);
 }
 
@@ -523,6 +525,12 @@
 }
 
 @media screen and (max-width: 768px) {
+  /* No thumbnail size control on mobile: the grid is one full-width column.
+     Scoped like the desktop show-rule, which otherwise outranks it. */
+  :global(body[data-page="archive"]) .thumbSizer {
+    display: none;
+  }
+
   .headerSearchInput::-webkit-search-cancel-button {
     width: 32px;
     height: 32px;
@@ -545,6 +553,7 @@
 
   .header {
     padding: var(--responsive-padding);
+    padding-top: var(--mobile-header-top);
     padding-left: 10px;
     padding-right: 10px;
   }
@@ -682,7 +691,13 @@
 
 /* ------------------------------------------------------------ */
 
+/* The newsletter block of the mobile menu modal, hidden everywhere else */
+.menuNewsletter {
+  display: none;
+}
+
 .newsletterPopupWrapper {
+  font-weight: 400;
   position: relative;
   pointer-events: none;
   display: flex;
@@ -862,15 +877,17 @@
 }
 
 .navDropdownMenu {
+  /* One source for both spacings: under the trigger and between items */
+  --dropdown-spacing: 8px;
   position: absolute;
-  top: calc(100% + var(--gap) * 4);
+  top: calc(100% + var(--dropdown-spacing));
   left: 0;
   margin: 0;
   padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
+  gap: var(--dropdown-spacing);
   z-index: 10;
   pointer-events: auto;
 }
@@ -939,13 +956,13 @@
   border-bottom: 1px solid var(--light-gray-color);
   background: transparent;
   font: inherit;
-  color: var(--nav-dark-color);
+  color: var(--nav-text-color);
   outline-offset: 2px;
   appearance: none;
 }
 
 .headerSearchInput::placeholder {
-  color: var(--nav-dark-color);
+  color: var(--nav-text-color);
   opacity: 1;
 }
 
@@ -1042,6 +1059,21 @@
 
   .navTitleContainer {
     flex: 0 0 100%;
+    position: relative;
+    justify-content: center;
+  }
+
+  /* Roomier tap target than the desktop bubble, same look */
+  .navMenuMobile {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 29px;
+    padding-right: 16px;
+    padding-left: 16px;
+    font-size: 11px;
+    font-weight: 400;
   }
 
   .navLogo {
@@ -1070,16 +1102,13 @@
   }
 
   .headerVisitorCount {
-    position: fixed;
-    top: calc(var(--responsive-padding) + (41px - var(--bubble-height)) / 2);
-    right: 10px;
+    display: none;
   }
 
   .headerUtilities .newsletterPopupWrapper {
     display: none;
   }
 
-  :global(body.mobile-nav-open) .headerUtilities .newsletterPopupWrapper,
   .headerUtilities .newsletterPopupWrapper[data-visible-on-mobile="true"] {
     display: flex;
   }
@@ -1093,26 +1122,37 @@
     background-color: var(--light-gray-color);
   }
 
+  /* No room on the centred-logo row: the search joins the open drawer as a
+     full row of its own, and disappears with it. */
   .headerSearch {
+    display: none;
+  }
+
+  :global(body.mobile-nav-open) .headerSearch {
     display: flex;
-    position: fixed;
-    top: calc(var(--responsive-padding) + (41px - var(--bubble-height)) / 2);
-    left: 106px;
-    margin: 0;
+    position: static;
+    flex: 0 0 auto;
+    width: 100%;
+    order: 1;
+    margin: 28px 0 0;
+  }
+
+  :global(body.mobile-nav-open) .headerSearchInput {
+    width: 100%;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.07em;
+    padding-bottom: 6px;
+    border-bottom: 0.7px solid #000000;
   }
 
   .archiveNavOptions {
     position: static;
-    margin-top: 20px;
+    margin-top: calc(20px + var(--archive-hero-block, 0px));
     margin-left: 0;
     flex-wrap: wrap;
     row-gap: 8px;
     max-width: 100%;
-  }
-
-  .archiveNavOptions .featuredNavRow {
-    flex: 0 0 100%;
-    display: flex;
   }
 
   .navTitleContainer {
@@ -1128,18 +1168,6 @@
     margin-left: 0;
   }
 
-  :global(body.mobile-nav-open) .navNavigation {
-    height: auto;
-    overflow: visible;
-  }
-
-  :global(body.mobile-nav-open) .navNavigation .navLi {
-    height: var(--bubble-height) !important;
-    min-height: var(--bubble-height) !important;
-    width: auto !important;
-    overflow: visible;
-  }
-
   :global(body:not(.mobile-nav-open)) .navNavigation .navLi {
     display: none;
   }
@@ -1150,14 +1178,387 @@
     display: flex;
   }
 
+  /* The submenu items join the drawer's own wrap: one single gap source
+     (headerTopRow), so every space in the open drawer is identical. */
   .navDropdownMenu {
-    position: static;
-    flex: 0 0 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: contents;
+  }
+
+  /* display: contents outranks the UA rule for [hidden]: restore it,
+     otherwise the closed submenu still occupies flex gaps. */
+  .navDropdownMenu[hidden] {
+    display: none;
+  }
+
+  /* ------------------- Mobile menu modal ------------------- */
+  /* Open state: the header becomes a fullscreen modal over a blurred
+     page. Links are stacked in the middle, the active page's link is
+     the only sharp one. */
+
+  :global(body.mobile-nav-open) .header {
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    pointer-events: auto;
+  }
+
+  /* The veil is its own layer over the page: whatever is painted below it
+     (the page, the logo, the archive options row) is blurred by it, so
+     none of them needs a filter or an animation of its own. */
+  :global(body.mobile-nav-open) .header::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-color: var(--bg-color-75);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    animation: mobileMenuVeilIn 0.35s var(--transition-effect) both;
+  }
+
+  :global(body.mobile-nav-closing) .header::before {
+    animation: mobileMenuVeilOut 0.3s var(--transition-effect) both;
+  }
+
+  /* Children of the top row become direct flex items of the header
+     column, so the whole modal is ordered from one place. */
+  :global(body.mobile-nav-open) .headerTopRow {
+    display: contents;
+  }
+
+  :global(body.mobile-nav-open) .navTitleContainer {
+    order: 0;
+    flex: 0 0 auto;
+  }
+
+  :global(body.mobile-nav-open) .headerSearch,
+  :global(body.mobile-nav-open) .navNavigation,
+  :global(body.mobile-nav-open) .menuNewsletter,
+  :global(body.mobile-nav-open) .headerVisitorCount {
+    position: relative;
+    z-index: 1;
+  }
+
+  :global(body.mobile-nav-open) .navTitleSpan {
+    max-width: 0;
+  }
+
+  /* Its parent is positioned, which would paint the logo over the veil:
+     send it to the layer below, where the veil blurs it with the page.
+     The Close button next to it keeps its own level, sharp and clickable. */
+  :global(body.mobile-nav-open) .navTitle {
+    position: relative;
+    z-index: -1;
+  }
+
+  :global(body.mobile-nav-open) .navTitleSpan.outside {
+    margin-right: 0;
+  }
+
+  :global(body.mobile-nav-open) .navNavigation {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    /* Spare height is shared with the count below (2/3 here, 1/3 there),
+       so the links keep their distance from the newsletter section. */
+    justify-content: flex-end;
+    flex: 2 1 auto;
+    height: auto;
+    overflow: visible;
+    pointer-events: auto;
+  }
+
+  :global(body.mobile-nav-open) .navNavigation :global(menu) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  :global(body.mobile-nav-open) .navNavigation .navLi {
+    height: auto !important;
+    min-height: 0 !important;
+    width: auto !important;
+    overflow: visible;
     margin: 0;
+  }
+
+  :global(body.mobile-nav-open) .navNavigation .navLi[data-active="true"] .navLink {
+    font-weight: 700;
+  }
+
+  /* The active link keeps no pill treatment inside the modal: no
+     background, no dot, no shifted padding. */
+  :global(body.mobile-nav-open) .navNavigation .navLi[data-active="true"] .navLink {
+    background-color: transparent;
     padding-left: 0;
-    max-width: 100%;
+  }
+
+  :global(body.mobile-nav-open) .navNavigation .navLi[data-active="true"] .navLink::before {
+    content: none;
+  }
+
+  :global(body.mobile-nav-open) .navNavigation .navDropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Spacing lives on the submenu's own animated margin, not the gap,
+       so the collapsed state takes no extra room. */
+    gap: 0;
+  }
+
+  /* Smooth expand/collapse of the submenu: it stays in the layout even
+     when hidden, collapsed to zero height, and unfolds in transition. */
+  :global(body.mobile-nav-open) .navNavigation .navDropdownMenu {
+    /* Back in the flow: display contents used to neutralize the desktop
+       absolute positioning, the animated box must undo it explicitly. */
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    overflow: hidden;
+    max-height: 160px;
+    margin: 16px 0 0;
+    padding: 0;
+    transition:
+      max-height 0.3s var(--transition-effect),
+      margin-top 0.3s var(--transition-effect);
+  }
+
+  :global(body.mobile-nav-open) .navNavigation .navDropdownMenu[hidden] {
+    display: flex;
+    max-height: 0;
+    margin-top: 0;
+  }
+
+  /* No hover treatment inside the modal: it is a touch context, the
+     desktop hover rules only leak in when testing in a narrow window. */
+  :global(body.mobile-nav-open) .navNavigation .navLink:hover,
+  :global(body.mobile-nav-open) .navNavigation .navLi:not([data-active="true"]) .navLink:hover {
+    background-color: transparent;
+    border-radius: 0;
+    padding-left: 0;
+  }
+
+  :global(body.mobile-nav-open) .navNavigation .navBubble {
+    background-color: transparent;
+    height: auto;
+    padding: 0;
+    font-size: 38px;
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 1.1;
+  }
+
+  /* The archive pages shrink this link's box in the closed header;
+     inside the modal it must read like every other link. */
+  :global(body[data-page="archive"].mobile-nav-open) .navLi:global(.archive-nav) .navLink,
+  :global(body[data-page="unexpected-connections"].mobile-nav-open) .navLi:global(.archive-nav) .navLink,
+  :global(body[data-page="archive-entry"].mobile-nav-open) .navLi:global(.archive-nav) .navLink {
+    width: auto;
+    padding: 0 !important;
+    overflow: visible;
+  }
+
+  :global(body.mobile-nav-open) .navDropdownItem .navBubble {
+    font-size: 21px;
+  }
+
+  /* The popup belongs to the closed header: the modal has its own
+     always-visible newsletter block instead. */
+  :global(body.mobile-nav-open) .headerUtilities .newsletterPopupWrapper {
+    display: none;
+  }
+
+  :global(body.mobile-nav-open) .menuNewsletter {
+    order: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(100%, 320px);
+    /* The section stands apart from the links above and the count below */
+    margin: 72px auto 0;
+  }
+
+  .menuNewsletterTitle {
+    margin: 0;
+    font-family: var(--oracle-font-family);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.07em;
+    line-height: 1.2;
+  }
+
+  .menuNewsletterForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .menuNewsletterField {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 34px;
+    box-sizing: border-box;
+    /* The 16px of air around the field are margins, the box itself stays
+       the height of its content. */
+    margin: 16px 0;
+    padding: 0 12px;
+    background-color: #DCDCDC;
+    border-radius: 6px;
+    cursor: text;
+  }
+
+  .menuNewsletterArrow,
+  .menuNewsletterInput {
+    font-family: var(--oracle-font-family);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.07em;
+  }
+
+  .menuNewsletterArrow {
+    display: flex;
+    color: var(--nav-text-color);
+    flex-shrink: 0;
+  }
+
+  .menuNewsletterInput {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: var(--nav-text-color);
+    padding: 0;
+    appearance: none;
+  }
+
+  .menuNewsletterInput::placeholder {
+    color: var(--nav-text-color);
+    opacity: 1;
+  }
+
+  .menuNewsletterSubmit {
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--oracle-font-family);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.07em;
+    color: var(--nav-text-color);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .menuNewsletterSuccess {
+    margin: 0;
+    font-family: var(--oracle-font-family);
+    font-size: 14px;
+    letter-spacing: -0.07em;
+  }
+
+  :global(body.mobile-nav-open) .headerVisitorCount {
+    order: 4;
+    display: flex;
+    justify-content: center;
+    font-family: var(--oracle-font-family);
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.07em;
+    /* Same air below the newsletter section as above it */
+    margin: 72px 0 0;
+    flex: 1 1 auto;
+    align-items: flex-start;
+    /* Drops the desktop dark pill: plain text over the modal */
+    background-color: transparent;
+    color: var(--fg-color);
+    height: auto;
+    padding: 0;
+    gap: 8px;
+  }
+
+  :global(body.mobile-nav-open) .headerVisitorCountDot {
+    width: 13px;
+    height: 13px;
+    background: radial-gradient(
+      circle,
+      #71DB7D 0 3px,
+      #466049 3px
+    );
+  }
+
+  /* The row belongs to the page visually, so it stays put behind the
+     modal: pinned at its closed-state spot, blurred like the veiled
+     page (it lives in the header, above the backdrop, so it needs its
+     own blur), and inert. z-index -1 keeps it under the modal pieces. */
+  :global(body.mobile-nav-open) .archiveNavOptions {
+    position: fixed;
+    top: calc(var(--mobile-header-top) + 41px + 8px + var(--bubble-height) + 1px + 20px + var(--archive-hero-block, 0px));
+    left: 10px;
+    right: 10px;
+    margin: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+
+  /* Open/close feel: the modal pieces fade in through a blur when the
+     menu opens, and back out during the closing phase (the button keeps
+     body.mobile-nav-open + adds body.mobile-nav-closing while it plays). */
+  :global(body.mobile-nav-open) .headerSearch,
+  :global(body.mobile-nav-open) .navNavigation,
+  :global(body.mobile-nav-open) .menuNewsletter,
+  :global(body.mobile-nav-open) .headerVisitorCount {
+    animation: mobileMenuPieceIn 0.35s var(--transition-effect) both;
+  }
+
+  :global(body.mobile-nav-closing) .headerSearch,
+  :global(body.mobile-nav-closing) .navNavigation,
+  :global(body.mobile-nav-closing) .menuNewsletter,
+  :global(body.mobile-nav-closing) .headerVisitorCount {
+    animation: mobileMenuPieceOut 0.3s var(--transition-effect) both;
+  }
+
+  :global(body.mobile-nav-closing) .header {
+    background-color: transparent;
+    -webkit-backdrop-filter: blur(0px);
+    backdrop-filter: blur(0px);
+  }
+}
+
+@keyframes mobileMenuPieceIn {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+  }
+}
+
+@keyframes mobileMenuPieceOut {
+  to {
+    opacity: 0;
+    filter: blur(8px);
+  }
+}
+
+@keyframes mobileMenuVeilIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mobileMenuVeilOut {
+  to {
+    opacity: 0;
   }
 }
