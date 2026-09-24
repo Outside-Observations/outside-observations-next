@@ -570,6 +570,51 @@ export const ARCHIVE_ENTRIES_TEXT_SEARCH_IDS_QUERY = defineQuery(
   }`
 )
 
+// Shared by the article page, its draft preview and the infinite reader, so
+// the three always render the same blocks.
+const WRITING_IMAGE_PROJECTION = `{
+  ...,
+  asset,
+  'lqip': asset->metadata.lqip,
+  'dimensions': asset->metadata.dimensions
+}`
+
+const WRITING_BLOCK_CONTENT_PROJECTION = `
+  _type,
+  _key,
+  size,
+  width,
+  captionTitle,
+  captionCredit,
+  items,
+  _type in ["textSection", "columnText"] => {
+    text[] {
+      ...,
+      markDefs[] {
+        ...,
+        _type == "hoverImage" => { ..., image ${WRITING_IMAGE_PROJECTION} }
+      }
+    }
+  },
+  _type == "quoteBlock" => { text },
+  _type in ["imageBlock", "columnImage"] => { image ${WRITING_IMAGE_PROJECTION} }
+`
+
+const WRITING_ARTICLE_BODY_PROJECTION = `body[] {
+  ${WRITING_BLOCK_CONTENT_PROJECTION},
+  startColumn,
+  columnSpan,
+  position,
+  _type == "rowBlock" => {
+    columns[] {
+      _key,
+      startColumn,
+      columnSpan,
+      blocks[] { ${WRITING_BLOCK_CONTENT_PROJECTION} }
+    }
+  }
+}`
+
 export const WRITINGS_SETTINGS_QUERY = defineQuery(
   `*[_type == "writingsSettings"][0] { aboutFirstColumn, aboutSecondColumn }`
 )
@@ -581,7 +626,12 @@ export const WRITINGS_LIST_QUERY = defineQuery(
     "slug": slug.current,
     publishedAt,
     excerpt,
-    "authorName": author->name
+    "authorName": author->name,
+    coverImage {
+      asset,
+      'lqip': asset->metadata.lqip,
+      'dimensions': asset->metadata.dimensions
+    }
   }`
 )
 
@@ -594,28 +644,7 @@ export const WRITING_ARTICLE_QUERY = defineQuery(
     publishedAt,
     excerpt,
     author->{ name, "slug": slug.current, bio, link },
-    body[] {
-      _type,
-      _key,
-      startColumn,
-      columnSpan,
-      position,
-      text[] {
-        ...,
-        markDefs[] {
-          ...,
-          _type == "hoverImage" => {
-            ...,
-            image {
-              ...,
-              asset,
-              'lqip': asset->metadata.lqip,
-              'dimensions': asset->metadata.dimensions
-            }
-          }
-        }
-      }
-    }
+    ${WRITING_ARTICLE_BODY_PROJECTION}
   }`
 )
 
@@ -628,28 +657,7 @@ export const WRITING_ARTICLE_PREVIEW_QUERY = defineQuery(
     publishedAt,
     excerpt,
     author->{ name, "slug": slug.current, bio, link },
-    body[] {
-      _type,
-      _key,
-      startColumn,
-      columnSpan,
-      position,
-      text[] {
-        ...,
-        markDefs[] {
-          ...,
-          _type == "hoverImage" => {
-            ...,
-            image {
-              ...,
-              asset,
-              'lqip': asset->metadata.lqip,
-              'dimensions': asset->metadata.dimensions
-            }
-          }
-        }
-      }
-    }
+    ${WRITING_ARTICLE_BODY_PROJECTION}
   }`
 )
 

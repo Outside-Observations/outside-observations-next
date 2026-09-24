@@ -1,7 +1,5 @@
-import {createElement as h} from 'react'
-import {defineArrayMember, defineField, defineType} from 'sanity'
-import {ColumnBandPreview} from '../../components/previews/ColumnBandPreview'
-import {ColumnBandInput} from '../../components/inputs/ColumnBandInput'
+import {defineField, defineType} from 'sanity'
+import {articleBodyBlocks} from './article-blocks'
 
 export const writingArticle = defineType({
   name: 'writingArticle',
@@ -44,95 +42,17 @@ export const writingArticle = defineType({
       description: 'One or two sentences used on the listing page and for search engines.',
     }),
     defineField({
+      name: 'coverImage',
+      title: 'Cover image',
+      type: 'image',
+      options: {hotspot: true},
+      description: 'Shown on the Editorial listing while the reader hovers this article.',
+    }),
+    defineField({
       name: 'body',
       title: 'Body',
       type: 'array',
-      of: [
-        defineArrayMember({
-          name: 'textSection',
-          title: 'Text section',
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'text',
-              title: 'Text',
-              type: 'array',
-              of: [
-                defineArrayMember({
-                  type: 'block',
-                  styles: [{title: 'Normal', value: 'normal'}],
-                  lists: [],
-                  marks: {
-                    decorators: [
-                      {title: 'Bold', value: 'strong'},
-                      {title: 'Italic', value: 'em'},
-                    ],
-                    annotations: [
-                      {
-                        name: 'link',
-                        type: 'object',
-                        title: 'Link (URL)',
-                        fields: [{name: 'href', type: 'url', title: 'URL'}],
-                      },
-                      {
-                        name: 'hoverImage',
-                        type: 'object',
-                        title: 'Link (image on hover)',
-                        description:
-                          'Underlines the text and reveals this image while the reader hovers it.',
-                        fields: [
-                          {
-                            name: 'image',
-                            type: 'image',
-                            title: 'Image',
-                            options: {hotspot: true},
-                            validation: (Rule) => Rule.required(),
-                          },
-                          {name: 'caption', type: 'string', title: 'Caption / credit'},
-                        ],
-                      },
-                    ],
-                  },
-                }),
-              ],
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: 'startColumn',
-              title: 'Starts at line',
-              type: 'number',
-              initialValue: 2,
-              hidden: true,
-              validation: (Rule) => Rule.required().integer().min(1).max(12),
-            }),
-            defineField({
-              name: 'columnSpan',
-              title: 'Width',
-              type: 'number',
-              initialValue: 8,
-              hidden: true,
-              validation: (Rule) => Rule.required().integer().min(1).max(12),
-            }),
-          ],
-          components: {input: ColumnBandInput},
-          preview: {
-            select: {text: 'text', startColumn: 'startColumn', columnSpan: 'columnSpan'},
-            prepare({text, startColumn, columnSpan}) {
-              const first = Array.isArray(text)
-                ? text.find((block) => block?._type === 'block')
-                : null
-              const plain = first?.children?.map((child) => child.text).join('') || 'Text section'
-              const from = startColumn ?? 2
-              const width = columnSpan ?? 8
-              return {
-                title: plain.slice(0, 80),
-                subtitle: `Line ${from} → ${from + width} (${width} col.)`,
-                media: h(ColumnBandPreview, {start: from, span: width}),
-              }
-            },
-          },
-        }),
-      ],
+      of: articleBodyBlocks,
       validation: (Rule) => Rule.required().min(1),
     }),
   ],

@@ -52,26 +52,6 @@
   margin: 0;
 }
 
-.textSection {
-  text-align: justify;
-  hyphens: auto;
-  font-size: 12px;
-  line-height: 13px;
-}
-
-.textSection p {
-  margin: 0 0 1em;
-}
-
-.textSection p:last-child {
-  margin-bottom: 0;
-}
-
-.textSection a {
-  color: inherit;
-  text-decoration: underline;
-}
-
 .sectionInner {
   grid-column: var(--col-start, 3) / var(--col-end, 11);
   padding-inline: calc(var(--column-width) / 3);
