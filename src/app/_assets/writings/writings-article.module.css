@@ -1,5 +1,12 @@
 
+/* Above the fixed column lines (z-index 0): they pass behind the whole
+   article, titles, quotes and images included. */
 .container {
+  /* Side inset shared by every body block: a third of a column on desktop,
+     16px from the screen edge on mobile */
+  --block-inset: calc(var(--column-width) / 3);
+  position: relative;
+  z-index: 1;
   padding: 0 var(--padding) calc(var(--padding) * 6);
 }
 
@@ -11,19 +18,24 @@
   display: grid;
   grid-template-columns: repeat(var(--columns), 1fr);
   column-gap: var(--column-gap);
-  margin-bottom: calc(var(--padding) * 6);
+  margin-bottom: 120px;
+}
+
+.title,
+.footerTitle {
+  margin: 0;
+  font-family: var(--oracle-font-family);
+  font-size: 65px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.07em;
+  text-align: center;
+  text-transform: none;
 }
 
 .title {
-  grid-column: 5 / 9;
-  margin: 0;
-  max-width: 360px;
+  grid-column: 4 / 10;
   justify-self: center;
-  text-align: center;
-  text-transform: uppercase;
-  font-size: 30px;
-  line-height: normal;
-  font-weight: var(--font-weight);
 }
 
 .byline {
@@ -40,9 +52,11 @@
 }
 
 .body {
+  /* One spacing between every body block, reused inside row columns */
+  --block-gap: 60px;
   display: flex;
   flex-direction: column;
-  gap: calc(var(--padding) * 3);
+  gap: var(--block-gap);
 }
 
 .textSection {
@@ -54,7 +68,7 @@
 
 .sectionInner {
   grid-column: var(--col-start, 3) / var(--col-end, 11);
-  padding-inline: calc(var(--column-width) / 3);
+  padding-inline: var(--block-inset);
 }
 
 .textSection[data-columns='2'] .sectionInner {
@@ -200,24 +214,15 @@
 }
 
 .footerTitleBlock {
-  grid-column: 5 / 9;
+  grid-column: 4 / 10;
   text-align: center;
   text-transform: uppercase;
   padding-top: calc(var(--padding) * 6);
   padding-bottom: calc(var(--padding) * 6);
 }
 
-.footerTitle {
-  margin: 0;
-  max-width: 360px;
-  margin-inline: auto;
-  font-size: 30px;
-  line-height: normal;
-}
-
 .footerByline {
   margin: calc(var(--padding) * 1.5) 0 0;
-  opacity: 0.6;
 }
 
 .article + .article {
@@ -297,14 +302,54 @@
     grid-column: 6;
   }
 
+  .container {
+    --block-inset: calc(16px - var(--padding));
+    /* How far a half-width block reaches past the middle line: half a
+       column, plus the half gutter up to the line */
+    --mobile-overlap: calc(var(--column-width) / 2 + var(--column-gap) / 2);
+  }
+
+  .header {
+    margin-bottom: 60px;
+  }
+
   .title,
   .byline,
   .footerTitleBlock {
     grid-column: 1 / -1;
   }
 
+  .title,
+  .footerTitle {
+    justify-self: start;
+    font-size: 38px;
+    text-align: left;
+  }
+
+  .footerTitleBlock {
+    text-align: left;
+  }
+
+  .title,
+  .byline,
+  .footerTitleBlock {
+    padding-inline: var(--block-inset);
+  }
+
+  /* Author on the left, date on the right, on one line */
+  .byline,
+  .footerByline {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    text-align: left;
+    font-size: 13px;
+  }
+
   .textSection .sectionInner {
-    grid-column: var(--col-start-m, 1) / calc(var(--col-start-m, 1) + 4) !important;
+    grid-column: var(--col-start-m, 1) / var(--col-end-m, -1) !important;
+    margin-inline-start: calc(var(--grow-start-m, 0) * var(--mobile-overlap) * -1);
+    margin-inline-end: calc(var(--grow-end-m, 0) * var(--mobile-overlap) * -1);
   }
 
 .textSection[data-position='two-columns'] .sectionInner {

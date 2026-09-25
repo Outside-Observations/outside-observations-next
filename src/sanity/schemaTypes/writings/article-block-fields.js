@@ -71,21 +71,6 @@ export const richTextField = defineField({
   validation: (Rule) => Rule.required(),
 })
 
-export const sizeField = defineField({
-  name: 'size',
-  title: 'Text size',
-  type: 'string',
-  options: {
-    list: [
-      {title: 'Normal', value: 'normal'},
-      {title: 'Large', value: 'large'},
-    ],
-    layout: 'radio',
-    direction: 'horizontal',
-  },
-  initialValue: 'normal',
-})
-
 export const imageFields = [
   defineField({
     name: 'image',
@@ -93,6 +78,13 @@ export const imageFields = [
     type: 'image',
     options: {hotspot: true},
     validation: (Rule) => Rule.required(),
+  }),
+  defineField({
+    name: 'mobileImage',
+    title: 'Mobile image (optional)',
+    type: 'image',
+    options: {hotspot: true},
+    description: 'Shown on phones instead of the image above. Leave empty to use the same image everywhere.',
   }),
   defineField({name: 'captionTitle', title: 'Caption - title', type: 'string'}),
   defineField({name: 'captionCredit', title: 'Caption - credit', type: 'string'}),

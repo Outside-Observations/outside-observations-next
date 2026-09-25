@@ -6,23 +6,43 @@ import SanityImage from '@/sanity/components/SanityImage';
 import ArticleRichText from './ArticleRichText';
 import { columnStyle } from './articleColumns';
 
+function BlockImage({ image, alt, sizes, className }) {
+  const ratio = image.dimensions?.aspectRatio || 1;
+
+  return (
+    <SanityImage
+      image={image}
+      alt={alt}
+      width={1600}
+      height={Math.round(1600 / ratio)}
+      sizes={sizes}
+      className={className}
+      placeholder={image.lqip ? 'blur' : undefined}
+      blurDataURL={image.lqip || undefined}
+    />
+  );
+}
+
 function ArticleImage({ block }) {
   if (!block.image?.asset) return null;
 
-  const ratio = block.image.dimensions?.aspectRatio || 1;
+  // Both versions are lazy images: the one hidden by CSS on the current
+  // screen is never downloaded.
+  const hasMobileImage = Boolean(block.mobileImage?.asset);
+  const alt = block.captionTitle || '';
   const hasCaption = Boolean(block.captionTitle || block.captionCredit);
 
   return (
     <figure className={styles.figure}>
-      <SanityImage
+      <BlockImage
         image={block.image}
-        alt={block.captionTitle || ''}
-        width={1600}
-        height={Math.round(1600 / ratio)}
-        sizes="(max-width: 768px) 100vw, 50vw"
-        placeholder={block.image.lqip ? 'blur' : undefined}
-        blurDataURL={block.image.lqip || undefined}
+        alt={alt}
+        sizes={hasMobileImage ? '50vw' : '(max-width: 768px) 100vw, 50vw'}
+        className={hasMobileImage ? styles.desktopOnly : undefined}
       />
+      {hasMobileImage ? (
+        <BlockImage image={block.mobileImage} alt={alt} sizes="100vw" className={styles.mobileOnly} />
+      ) : null}
       {hasCaption ? (
         <figcaption className={styles.caption}>
           {block.captionTitle ? <span>{block.captionTitle}</span> : null}
@@ -50,7 +70,6 @@ function ColumnBlock({ block }) {
     return (
       <div
         className={`${styles.columnText} ${styles.richText}`}
-        data-size={block.size || 'normal'}
         data-width={block.width || 'full'}
       >
         <ArticleRichText value={block.text} />
@@ -77,7 +96,6 @@ export default function ArticleBlock({ block }) {
         <section className={articleStyles.textSection} data-position={block.position || undefined}>
           <div
             className={`${articleStyles.sectionInner} ${styles.richText}`}
-            data-size={block.size || 'normal'}
             style={columnStyle(block, 'wide')}
           >
             <ArticleRichText value={block.text} />

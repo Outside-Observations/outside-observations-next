@@ -24,13 +24,29 @@ export default function MobileMenuButton() {
     return () => clearTimeout(timer);
   }, [phase]);
 
-  // The modal must not survive a navigation
+  // Leaving through a link of the menu closes it with the same fade as the
+  // Close button, from the tap on, so it fades out along with the page.
+  useEffect(() => {
+    if (phase !== 'open') return undefined;
+
+    const closeOnMenuLink = (event) => {
+      const link = event.target.closest?.('a[href]');
+      if (link && link.closest('#main-header')) {
+        setPhase('closing');
+      }
+    };
+
+    document.addEventListener('click', closeOnMenuLink);
+    return () => document.removeEventListener('click', closeOnMenuLink);
+  }, [phase]);
+
+  // The modal must not survive a navigation, however it was triggered
   useEffect(() => {
     if (isFirstPathname.current) {
       isFirstPathname.current = false;
       return;
     }
-    setPhase('closed');
+    setPhase((current) => (current === 'open' ? 'closing' : current));
   }, [pathname]);
 
   useEffect(() => {

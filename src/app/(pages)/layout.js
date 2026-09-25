@@ -79,7 +79,9 @@ export default async function RootLayout({ children }) {
   // This allows static generation while still setting the correct data-page attribute
   return (
     <html lang="en" className={abcOracle.variable} suppressHydrationWarning>
-      <body>
+      {/* Browser extensions (ColorZilla and co) add attributes to <body>
+          before React runs, which would otherwise log a hydration warning */}
+      <body suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}

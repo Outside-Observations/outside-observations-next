@@ -10,7 +10,6 @@ import {
   imageFields,
   listItemsField,
   richTextField,
-  sizeField,
 } from './article-block-fields'
 
 /**
@@ -29,7 +28,6 @@ const columnText = defineArrayMember({
   type: 'object',
   fields: [
     richTextField,
-    sizeField,
     defineField({
       name: 'width',
       title: 'Width in the column',
@@ -46,12 +44,10 @@ const columnText = defineArrayMember({
     }),
   ],
   preview: {
-    select: {text: 'text', size: 'size', width: 'width'},
-    prepare: ({text, size, width}) => ({
+    select: {text: 'text', width: 'width'},
+    prepare: ({text, width}) => ({
       title: firstTextLine(text).slice(0, 80) || 'Text',
-      subtitle: ['Text', size === 'large' && 'large', width === 'reduced' && 'reduced']
-        .filter(Boolean)
-        .join(' - '),
+      subtitle: width === 'reduced' ? 'Text - reduced' : 'Text',
     }),
   },
 })
@@ -122,7 +118,7 @@ export const textSection = defineArrayMember({
   name: 'textSection',
   title: 'Text section',
   type: 'object',
-  fields: [richTextField, sizeField, ...bandFields({start: 2, span: 8})],
+  fields: [richTextField, ...bandFields({start: 2, span: 8})],
   components: {input: ColumnBandInput},
   preview: {
     select: {text: 'text', startColumn: 'startColumn', columnSpan: 'columnSpan'},

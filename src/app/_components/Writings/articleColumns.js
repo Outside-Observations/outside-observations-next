@@ -15,11 +15,16 @@ const LEGACY_POSITIONS = {
 };
 
 const COLUMNS = 12;
+const NARROW_SPAN = 4;
+// Line between the 6th and 7th columns, the middle of the 12-line grid
+const PAGE_CENTRE_LINE = 7;
 
 /**
  * Grid placement of a body block as CSS variables: its desktop band on the
- * 12-line grid, plus the mobile start derived from where the band sits
- * (left, middle or right third of the page).
+ * 12-line grid, plus its mobile band on the 6-column mobile grid. Wide
+ * blocks go full width on mobile, narrow ones (4 lines or less) take half
+ * of it on the side where they sit on desktop, reaching slightly past the
+ * middle line.
  * `fallback` is a legacy position name or a [start, span] pair.
  */
 export function columnStyle({ startColumn, columnSpan, position } = {}, fallback = 'wide') {
@@ -33,8 +38,17 @@ export function columnStyle({ startColumn, columnSpan, position } = {}, fallback
   const safeSpan = Math.min(Math.max(span, 1), COLUMNS);
   const safeStart = Math.min(Math.max(start, 1), COLUMNS + 1 - safeSpan);
 
-  const desktopCentre = safeStart + safeSpan / 2;
-  const mobileStart = desktopCentre < 5.5 ? 1 : desktopCentre <= 8.5 ? 2 : 3;
+  const isNarrow = safeSpan <= NARROW_SPAN;
+  const sitsLeft = safeStart + safeSpan / 2 <= PAGE_CENTRE_LINE;
+  const [mobileStart, mobileEnd] = !isNarrow ? [1, 7] : sitsLeft ? [1, 4] : [4, 7];
 
-  return { '--col-start': safeStart, '--col-end': safeStart + safeSpan, '--col-start-m': mobileStart };
+  return {
+    '--col-start': safeStart,
+    '--col-end': safeStart + safeSpan,
+    '--col-start-m': mobileStart,
+    '--col-end-m': mobileEnd,
+    // Which edge of a half-width block reaches past the middle line (1 or 0)
+    '--grow-start-m': isNarrow && !sitsLeft ? 1 : 0,
+    '--grow-end-m': isNarrow && sitsLeft ? 1 : 0,
+  };
 }

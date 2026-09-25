@@ -582,7 +582,6 @@ const WRITING_IMAGE_PROJECTION = `{
 const WRITING_BLOCK_CONTENT_PROJECTION = `
   _type,
   _key,
-  size,
   width,
   captionTitle,
   captionCredit,
@@ -597,7 +596,10 @@ const WRITING_BLOCK_CONTENT_PROJECTION = `
     }
   },
   _type == "quoteBlock" => { text },
-  _type in ["imageBlock", "columnImage"] => { image ${WRITING_IMAGE_PROJECTION} }
+  _type in ["imageBlock", "columnImage"] => {
+    image ${WRITING_IMAGE_PROJECTION},
+    mobileImage ${WRITING_IMAGE_PROJECTION}
+  }
 `
 
 const WRITING_ARTICLE_BODY_PROJECTION = `body[] {
