@@ -82,17 +82,28 @@
   top: 50%;
   right: 12.5vw;
   width: min(26vw, 420px);
-  transform: translateY(-50%);
   pointer-events: none;
   z-index: 2;
 }
 
-.hoverPreview img {
+/* Every cover is mounted and stacked in the same spot, already loaded, so a
+   hover only reveals one of them. The container has no height of its own:
+   each image centres itself on the container's midline. */
+.hoverPreviewImage {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: block;
   width: 100%;
   height: auto;
   max-height: 60vh;
   object-fit: contain;
+  transform: translateY(-50%);
+  opacity: 0;
+}
+
+.hoverPreviewImage[data-visible='true'] {
+  opacity: 1;
 }
 
 @media screen and (max-width: 768px) {

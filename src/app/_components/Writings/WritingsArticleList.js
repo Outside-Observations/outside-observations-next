@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 import styles from '@app/_assets/writings/writings-page.module.css';
@@ -8,18 +8,21 @@ import ArticleReadLink from '@/app/_components/Writings/ArticleReadLink';
 import SanityImage from '@/sanity/components/SanityImage';
 
 const PREVIEW_QUERY = '(hover: hover) and (min-width: 769px)';
+// Covers fetched as soon as the page shows, so the first hovers are instant.
+// Beyond that the browser fetches them at idle, still ahead of the hover.
+const EAGER_COVERS = 16;
 
 export default function WritingsArticleList({ articles }) {
-  const [preview, setPreview] = useState(null);
+  const [activeId, setActiveId] = useState(null);
+  // Decided after mount: the server renders no previews, phones never get
+  // them, and desktops mount every cover at once, hidden, ready to show.
+  const [previewsEnabled, setPreviewsEnabled] = useState(false);
 
-  // Touch screens fire mouseenter on tap: the preview is a desktop pointer
-  // affordance only, and must not fetch an image on phones.
-  const showPreview = useCallback((article) => {
-    if (!article.coverImage?.asset || !window.matchMedia(PREVIEW_QUERY).matches) return;
-    setPreview(article);
+  useEffect(() => {
+    setPreviewsEnabled(window.matchMedia(PREVIEW_QUERY).matches);
   }, []);
 
-  const ratio = preview?.coverImage?.dimensions?.aspectRatio || 1;
+  const covers = previewsEnabled ? articles.filter((article) => article.coverImage?.asset) : [];
 
   return (
     <>
@@ -28,8 +31,8 @@ export default function WritingsArticleList({ articles }) {
           <li
             key={article._id}
             className={styles.articleRow}
-            onMouseEnter={() => showPreview(article)}
-            onMouseLeave={() => setPreview(null)}
+            onMouseEnter={() => setActiveId(article._id)}
+            onMouseLeave={() => setActiveId(null)}
           >
             <Link
               href={`/writings/${article.slug}`}
@@ -48,18 +51,24 @@ export default function WritingsArticleList({ articles }) {
         ))}
       </ul>
 
-      {preview ? (
+      {covers.length > 0 ? (
         <div className={styles.hoverPreview} aria-hidden="true">
-          <SanityImage
-            key={preview._id}
-            image={preview.coverImage}
-            alt=""
-            width={900}
-            height={Math.round(900 / ratio)}
-            sizes="420px"
-            placeholder={preview.coverImage.lqip ? 'blur' : undefined}
-            blurDataURL={preview.coverImage.lqip || undefined}
-          />
+          {covers.map((article, index) => {
+            const ratio = article.coverImage.dimensions?.aspectRatio || 1;
+            return (
+              <SanityImage
+                key={article._id}
+                image={article.coverImage}
+                alt=""
+                width={900}
+                height={Math.round(900 / ratio)}
+                sizes="420px"
+                loading={index < EAGER_COVERS ? 'eager' : 'lazy'}
+                className={styles.hoverPreviewImage}
+                data-visible={article._id === activeId ? 'true' : 'false'}
+              />
+            );
+          })}
         </div>
       ) : null}
     </>
