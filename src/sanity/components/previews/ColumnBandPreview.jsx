@@ -1,14 +1,16 @@
 import {createElement as h} from 'react'
 
 /**
- * Mini map of the site grid shown as the media thumbnail of a text block:
- * twelve cells, the ones the block occupies are filled. Lets contributors read
- * the collage of a whole article at a glance in the block list.
+ * Mini map of the site grid shown as the media thumbnail of a block: twelve
+ * cells, the ones the block occupies are filled. A row passes one band per
+ * column. Lets contributors read the collage of a whole article at a glance
+ * in the block list.
  */
-export function ColumnBandPreview({start = 2, span = 8}) {
+export function ColumnBandPreview({start = 2, span = 8, bands}) {
+  const shown = bands?.length ? bands : [{start, span}]
   const cells = Array.from({length: 12}, (_, i) => {
     const line = i + 1
-    const active = line >= start && line < start + span
+    const active = shown.some((band) => line >= band.start && line < band.start + band.span)
     return h('span', {
       key: line,
       style: {

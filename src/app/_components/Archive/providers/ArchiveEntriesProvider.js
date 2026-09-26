@@ -23,6 +23,8 @@ import {
 
 const ArchiveEntriesContext = createContext(null);
 const ROWS_PER_PAGE = 10;
+// Matches DEFAULT_ARCHIVE_PAGE_LIMIT, which the server renders the first page with
+const SERVER_PAGE_SIZE = 40;
 const PAGE_SIZE_RESIZE_DEBOUNCE_MS = 180;
 
 function getPageSizeForViewportWidth(width) {
@@ -67,7 +69,12 @@ export default function ArchiveEntriesProvider({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [paginationError, setPaginationError] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [pageSize, setPageSize] = useState(40);
+  // Sized for the viewport from the start: seeding it with the server's
+  // page size and correcting it on mount changed the query signature and
+  // re-downloaded the first page right after every arrival on the archive.
+  const [pageSize, setPageSize] = useState(() =>
+    typeof window === 'undefined' ? SERVER_PAGE_SIZE : getPageSizeForViewportWidth(window.innerWidth)
+  );
   // Initialize view: Always start with 'images' to match server render and prevent hydration mismatch
   // The view will be updated from localStorage in useLayoutEffect after mount
   const [view, setViewState] = useState(() => {
@@ -88,7 +95,9 @@ export default function ArchiveEntriesProvider({
   const pathname = usePathname();
   const requestIdRef = useRef(0);
   const fetchAbortRef = useRef(null);
-  const pageSizeBucketRef = useRef(null);
+  const pageSizeBucketRef = useRef(
+    typeof window === 'undefined' ? null : getPageSizeBucket(window.innerWidth)
+  );
   const hasLoadedArchivePageRef = useRef(false);
   const lastArchiveQuerySignatureRef = useRef(null);
   const skippedInitialFetchRef = useRef(

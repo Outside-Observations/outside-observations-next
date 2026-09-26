@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import { client } from '@/sanity/lib/client';
 import { WRITINGS_LIST_QUERY, WRITINGS_SETTINGS_QUERY } from '@/sanity/lib/queries';
@@ -6,14 +5,12 @@ import { SITE_NAME, SITE_URL } from '@/lib/siteUrl';
 import styles from '@app/_assets/writings/writings-page.module.css';
 import { ErrorBoundary } from '@/app/_components/shared/error/ErrorBoundary';
 import WritingsScrollReset from '@/app/_components/Writings/WritingsScrollReset';
-import ArticleReadLink from '@/app/_components/Writings/ArticleReadLink';
+import WritingsArticleList from '@/app/_components/Writings/WritingsArticleList';
 
 export const revalidate = 60;
 
 const DEFAULT_ABOUT_FIRST =
   "We've always looked at the world the same way: found images rather than produced ones, places and people we don't usually notice, things that carry a history without ever explaining it. This part of the site is where we finally put words to that way of looking. Everything is turning into an image to look at - a life, a street, a face - and even what's real has become a style you can buy. Here, we're interested in what wasn't made to be seen.";
-const DEFAULT_ABOUT_SECOND =
-  'We publish writing from writers, artists, and people we find interesting - sometimes to dig into an idea in depth, sometimes just to introduce someone new, highlight something overlooked, or take a close look at something we find beautiful. No grand theory required every time: new creatives, music, design, objects, shifts we can feel happening - anything that shapes how we see the world belongs here.';
 
 const getWritingsData = unstable_cache(
   async () => {
@@ -74,7 +71,6 @@ export default async function WritingsPage() {
   const { settings, articles } = await getWritingsData();
 
   const aboutFirst = settings?.aboutFirstColumn?.trim() || DEFAULT_ABOUT_FIRST;
-  const aboutSecond = settings?.aboutSecondColumn?.trim() || DEFAULT_ABOUT_SECOND;
 
   return (
     <ErrorBoundary>
@@ -84,38 +80,15 @@ export default async function WritingsPage() {
       />
       <WritingsScrollReset />
       <main className={styles.container}>
-        <section className={styles.row}>
-          <p className={styles.rowLabel}>About our writing</p>
-          <p className={styles.aboutText}>{aboutFirst}</p>
-          <p className={styles.aboutTextSecond}>{aboutSecond}</p>
+        <section className={styles.intro}>
+          <p className={styles.description}>{aboutFirst}</p>
         </section>
 
-        <section className={styles.row}>
-          <p className={styles.rowLabel}>Recently published</p>
-          {articles.length > 0 ? (
-            <ul className={styles.articleList}>
-              {articles.map((article) => (
-                <li key={article._id} className={styles.articleRow}>
-                  <Link
-                    href={`/writings/${article.slug}`}
-                    className={styles.articleTitle}
-                    data-transition="nav"
-                  >
-                    {article.title}
-                  </Link>
-                  <span className={styles.articleAuthor}>{article.authorName}</span>
-                  <ArticleReadLink
-                    slug={article.slug}
-                    title={article.title}
-                    className={styles.articleRead}
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className={styles.emptyState}>Nothing published yet - first texts are on their way.</p>
-          )}
-        </section>
+        {articles.length > 0 ? (
+          <WritingsArticleList articles={articles} />
+        ) : (
+          <p className={styles.emptyState}>Nothing published yet - first texts are on their way.</p>
+        )}
       </main>
     </ErrorBoundary>
   );

@@ -1,0 +1,219 @@
+/* Blocks of the article body: shared text typography, placed images and
+   lists, quotes, and rows of two columns. The 12-line grid itself comes from
+   the page (--columns, --column-gap, --column-width). */
+
+/* Every block sits inside its band with the same side inset as the text
+   sections (.sectionInner), so images, captions and lists line up with the
+   paragraphs instead of touching the column lines. */
+.placedInner,
+.column > * {
+  padding-inline: var(--block-inset);
+}
+
+.richText {
+  font-family: var(--oracle-font-family);
+  font-size: 12px;
+  line-height: 15px;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.richText p {
+  margin: 0 0 1em;
+}
+
+.richText p:last-child {
+  margin-bottom: 0;
+}
+
+.richText a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* ---- Image and list placed on their own band ---- */
+
+.placed {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  column-gap: var(--column-gap);
+}
+
+.placedInner {
+  grid-column: var(--col-start, 2) / var(--col-end, 6);
+}
+
+.figure {
+  margin: 0;
+}
+
+.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Optional mobile version of an image: the desktop one shows above 768px,
+   the mobile one below. Without a mobile version, one image serves both. */
+.figure .mobileOnly {
+  display: none;
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  margin-top: 6px;
+  font-family: var(--font-family);
+  font-size: 10px;
+  line-height: 12px;
+  text-transform: uppercase;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  font-size: 10px;
+  line-height: 12px;
+  text-transform: uppercase;
+}
+
+.list li::before {
+  content: '.';
+  margin-right: 8px;
+}
+
+/* ---- Quote: always centered, no placement to set ---- */
+
+.quote {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  column-gap: var(--column-gap);
+  /* 120px of air on each side: the block gap plus this margin */
+  margin: calc(120px - var(--block-gap, 60px)) 0;
+}
+
+.quote p {
+  grid-column: 4 / 10;
+  margin: 0;
+  font-family: var(--oracle-font-family);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 30px;
+  letter-spacing: -0.07em;
+  text-align: center;
+}
+
+/* ---- Row: two columns side by side, each a stack of blocks ---- */
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  column-gap: var(--column-gap);
+  align-items: start;
+}
+
+.column {
+  grid-row: 1;
+  grid-column: var(--col-start, 2) / var(--col-end, 7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--block-gap, 60px);
+  min-width: 0;
+}
+
+.columnText[data-width='reduced'] {
+  width: 60%;
+}
+
+@media screen and (max-width: 768px) {
+  .richText {
+    font-size: 16px;
+    line-height: 19px;
+    letter-spacing: 0;
+  }
+
+  .list {
+    font-size: 12px;
+    line-height: 15px;
+  }
+
+  .placedInner {
+    grid-column: var(--col-start-m, 1) / var(--col-end-m, -1);
+    margin-inline-start: calc(var(--grow-start-m, 0) * var(--mobile-overlap) * -1);
+    margin-inline-end: calc(var(--grow-end-m, 0) * var(--mobile-overlap) * -1);
+  }
+
+  .placed[data-kind='image'] .placedInner {
+    grid-column: 1 / -1;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  /* Images run edge to edge of the screen, past the page padding, and their
+     caption comes back in line with the text */
+  .figure {
+    margin-inline: calc(var(--padding) * -1);
+  }
+
+  .figure .desktopOnly {
+    display: none;
+  }
+
+  .figure .mobileOnly {
+    display: block;
+  }
+
+  .caption {
+    padding-inline: calc(var(--padding) + var(--block-inset));
+  }
+
+  /* The block gap alone around the quote on mobile */
+  .quote {
+    margin: 0;
+  }
+
+  .quote p {
+    grid-column: 1 / -1;
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  /* Columns stack in order, left first. Images and text take the full
+     width, reduced text the right half (reaching slightly past the middle
+     line), lists sit centered. */
+  .row {
+    row-gap: var(--block-gap, 60px);
+  }
+
+  .column {
+    grid-row: auto;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: var(--block-gap, 60px);
+    /* The desktop flex gap would otherwise widen the subgrid's gutters and
+       push every placed child to the right */
+    column-gap: var(--column-gap);
+  }
+
+  .column > * {
+    grid-column: 2 / 6;
+  }
+
+  .column > .figure,
+  .column > .columnText {
+    grid-column: 1 / -1;
+  }
+
+  .column > .figure {
+    padding-inline: 0;
+  }
+
+  .column > .columnText[data-width='reduced'] {
+    grid-column: 4 / -1;
+    margin-inline-start: calc(var(--mobile-overlap) * -1);
+    width: auto;
+  }
+}

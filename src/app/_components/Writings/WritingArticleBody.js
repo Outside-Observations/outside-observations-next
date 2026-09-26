@@ -2,64 +2,9 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { PortableText } from 'next-sanity';
 
 import styles from '@app/_assets/writings/writings-article.module.css';
-import SanityImage from '@/sanity/components/SanityImage';
-import HoverImageLink from './HoverImageLink';
-
-const LEGACY_POSITIONS = {
-  'narrow-left': [2, 2],
-  'narrow-center': [5, 3],
-  'narrow-right': [9, 2],
-  'medium-left': [2, 5],
-  'medium-left-indented': [3, 4],
-  'medium-center': [5, 5],
-  'medium-right': [7, 5],
-  wide: [2, 8],
-  'wide-indented': [4, 6],
-  'two-columns': [3, 8],
-  left: [2, 4],
-  right: [8, 4],
-  center: [5, 4],
-};
-
-const COLUMNS = 12;
-
-function columnStyle({ startColumn, columnSpan, position }, fallback) {
-  const legacy = LEGACY_POSITIONS[position] || LEGACY_POSITIONS[fallback];
-  const start = Number.isFinite(startColumn) ? startColumn : legacy[0];
-  const span = Number.isFinite(columnSpan) ? columnSpan : legacy[1];
-
-  const safeSpan = Math.min(Math.max(span, 1), COLUMNS);
-  const safeStart = Math.min(Math.max(start, 1), COLUMNS + 1 - safeSpan);
-
-  const desktopCentre = safeStart + safeSpan / 2;
-  const mobileStart = desktopCentre < 5.5 ? 1 : desktopCentre <= 8.5 ? 2 : 3;
-
-  return { '--col-start': safeStart, '--col-end': safeStart + safeSpan, '--col-start-m': mobileStart };
-}
-
-const portableComponents = {
-  marks: {
-    link: ({ value, children }) => (
-      <a href={value?.href} target="_blank" rel="noreferrer">
-        {children}
-      </a>
-    ),
-    hoverImage: ({ value, children }) => {
-      if (!value?.image?.asset) {
-        return <span>{children}</span>;
-      }
-
-      return (
-        <HoverImageLink image={value.image} caption={value.caption}>
-          {children}
-        </HoverImageLink>
-      );
-    },
-  },
-};
+import ArticleBlock from './ArticleBlock';
 
 export function formatArticleDate(value) {
   if (!value) return null;
@@ -116,23 +61,9 @@ export default function WritingArticleBody({ article, nextArticle, showHeader = 
       ) : null}
 
       <div className={styles.body}>
-        {(article.body ?? []).map((section) => {
-          if (section._type === 'textSection') {
-            return (
-              <section
-                key={section._key}
-                className={styles.textSection}
-                data-position={section.position || undefined}
-              >
-                <div className={styles.sectionInner} style={columnStyle(section, 'wide')}>
-                  <PortableText value={section.text} components={portableComponents} />
-                </div>
-              </section>
-            );
-          }
-
-          return null;
-        })}
+        {(article.body ?? []).map((block) => (
+          <ArticleBlock key={block._key} block={block} />
+        ))}
       </div>
 
       <footer className={styles.footer}>
@@ -162,7 +93,7 @@ export default function WritingArticleBody({ article, nextArticle, showHeader = 
             <p className={styles.footerTitle}>{nextArticle.title}</p>
             <p className={styles.footerByline}>
               {nextArticle.authorName}
-              {nextDate ? ` - ${nextDate}` : ''}
+              {nextDate ? <span className={styles.date}>{nextDate}</span> : null}
             </p>
           </div>
         ) : null}

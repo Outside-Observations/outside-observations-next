@@ -14,33 +14,39 @@ import WritingsScrollReset from '@/app/_components/Writings/WritingsScrollReset'
 
 export const revalidate = 60;
 
-const getCachedArticle = (slug) =>
-  unstable_cache(
-    async () => {
-      try {
-        return await client.fetch(WRITING_ARTICLE_QUERY, { slug });
-      } catch (error) {
-        console.error('Failed to fetch writing article:', error);
-        return null;
-      }
-    },
-    [`writing-article-${slug}`],
-    { revalidate: 60 }
-  )();
+// Failures are caught outside the cache on purpose: a caught error returned
+// from inside unstable_cache would be stored, serving a 404 (or an empty
+// order) for the whole revalidation window after one Sanity hiccup.
+const getCachedArticle = async (slug) => {
+  try {
+    return await unstable_cache(
+      () => client.fetch(WRITING_ARTICLE_QUERY, { slug }),
+      [`writing-article-${slug}`],
+      { revalidate: 60 }
+    )();
+  } catch (error) {
+    console.error('Failed to fetch writing article:', error);
+    return null;
+  }
+};
 
-const getCachedOrder = unstable_cache(
+const fetchOrder = unstable_cache(
   async () => {
-    try {
-      const articles = await client.fetch(WRITINGS_LIST_QUERY);
-      return Array.isArray(articles) ? articles : [];
-    } catch (error) {
-      console.error('Failed to fetch writings order:', error);
-      return [];
-    }
+    const articles = await client.fetch(WRITINGS_LIST_QUERY);
+    return Array.isArray(articles) ? articles : [];
   },
   ['writings-order'],
   { revalidate: 60 }
 );
+
+const getCachedOrder = async () => {
+  try {
+    return await fetchOrder();
+  } catch (error) {
+    console.error('Failed to fetch writings order:', error);
+    return [];
+  }
+};
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;

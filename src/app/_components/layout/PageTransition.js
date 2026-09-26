@@ -129,6 +129,10 @@ export default function PageTransition({ children }) {
       // Set navigating flag (using ref for synchronous access)
       isNavigatingRef.current = true;
 
+      // The route is pushed after the exit fade: fetching it now hides the
+      // download behind the animation instead of adding to it.
+      router.prefetch(href);
+
       // The archive view-toggle row lives in the header (which stays visible)
       // but is page-scoped: without this it would outlive the content fade,
       // then vanish abruptly once data-page flips on the new route.

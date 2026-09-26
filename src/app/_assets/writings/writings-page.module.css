@@ -1,132 +1,151 @@
-
 .container {
-  --writings-col-inset: calc(var(--column-width) / 3);
-  margin-top: var(--archive-container-top-margin);
-  padding: 0 var(--padding);
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--padding) * 8);
+  /* Tracks measured on the desktop mockup, as shares of the content width
+     so they keep their place against the column lines at any size:
+     left gutter, title (and description), author, read link, and the free
+     space on the right where the cover preview shows. */
+  --writings-tracks: 9.3% 19.06% 10.53% auto 1fr;
+  margin-top: calc(var(--archive-container-top-margin) + 33px);
+  padding: 0 var(--padding) calc(var(--padding) * 6);
   min-height: calc(100dvh - var(--archive-container-top-margin));
-  padding-bottom: calc(var(--padding) * 4);
+  font-family: var(--oracle-font-family);
 }
 
-.row {
+.intro,
+.articleList {
   display: grid;
-  grid-template-columns: repeat(var(--columns), 1fr);
-  column-gap: var(--column-gap);
-  row-gap: calc(var(--padding) * 2);
-  align-items: start;
+  grid-template-columns: var(--writings-tracks);
 }
 
-.rowLabel {
-  grid-column: 2 / 4;
-  grid-row: 1;
+.description {
+  grid-column: 2 / 3;
   margin: 0;
-  text-transform: uppercase;
-  padding-inline: var(--writings-col-inset);
-}
-
-.aboutText,
-.aboutTextSecond {
-  margin: 0;
+  font-size: 12px;
+  line-height: 15px;
   text-align: justify;
   hyphens: auto;
-  padding-inline: var(--writings-col-inset);
-}
-
-.aboutText {
-  grid-column: 6 / 9;
-}
-
-.aboutTextSecond {
-  grid-column: 9 / 12;
 }
 
 .articleList {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  display: grid;
-  grid-template-columns: subgrid;
   list-style: none;
-  margin: 0;
+  margin: 100px 0 0;
   padding: 0;
-  row-gap: calc(var(--padding) * 3);
+  row-gap: 30px;
 }
 
+/* Rows stop at the read link: the empty right side, where the preview
+   shows, must not keep switching it as the pointer travels there. */
 .articleRow {
-  grid-column: 1 / -1;
+  grid-column: 2 / 5;
   display: grid;
   grid-template-columns: subgrid;
   align-items: baseline;
 }
 
 .articleTitle {
-  grid-column: 6 / 9;
+  grid-column: 1 / 2;
+  padding-right: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 15px;
   text-decoration: none;
-  padding-inline: var(--writings-col-inset);
 }
 
 .articleAuthor {
-  grid-column: 9 / 12;
-  padding-inline: var(--writings-col-inset);
+  grid-column: 2 / 3;
+  padding-right: 16px;
+  font-family: var(--font-family);
+  font-size: 11px;
+  line-height: 15px;
 }
 
 .articleRead {
-  grid-column: 12 / 13;
+  grid-column: 3 / 4;
   justify-self: start;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 15px;
   text-decoration: underline;
-  padding-left: 6px;
+  text-underline-offset: 2px;
 }
 
 .emptyState {
-  grid-column: 6 / 12;
-  margin: 0;
+  grid-column: 2 / -1;
+  margin: 100px 0 0;
+  font-size: 12px;
   opacity: 0.6;
 }
 
-@media (hover: hover) {
-  .articleTitle:hover,
-  .articleRead:hover {
-    font-style: italic;
-  }
+/* The hovered article's cover, on the right of the list. Desktop pointer
+   only: the list component never mounts it elsewhere. */
+.hoverPreview {
+  position: fixed;
+  top: 50%;
+  right: 12.5vw;
+  width: min(26vw, 420px);
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hoverPreview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  object-fit: contain;
 }
 
 @media screen and (max-width: 768px) {
   .container {
-    --writings-col-inset: 0px;
-    gap: calc(var(--padding) * 4);
+    --writings-tracks: minmax(0, 1fr) auto;
+    /* Airy top measured on the mobile mockup */
+    margin-top: calc(var(--archive-container-top-margin) + 85px);
   }
 
-  .rowLabel {
+  /* Stops short of the last column, like the mockup */
+  .description {
     grid-column: 1 / -1;
-    grid-row: auto;
+    margin-right: var(--column-width);
   }
 
   .articleList {
-    grid-row: auto;
-  }
-
-  .aboutText,
-  .aboutTextSecond {
-    grid-column: 1 / -1;
+    margin-top: 70px;
+    row-gap: 50px;
   }
 
   .articleRow {
-    row-gap: 2px;
+    grid-column: 1 / -1;
   }
 
+  /* Title and author stacked on the left, the read link on the right */
   .articleTitle {
-    grid-column: 1 / 5;
+    grid-column: 1 / 2;
+    grid-row: 1;
+    padding-right: 24px;
+    font-size: 17px;
+    line-height: 1.15;
+    letter-spacing: -0.07em;
   }
 
   .articleAuthor {
-    grid-column: 1 / 5;
-    opacity: 0.7;
+    grid-column: 1 / 2;
+    grid-row: 2;
+    margin-top: 6px;
   }
 
   .articleRead {
-    grid-column: 6 / 7;
+    grid-column: 2 / 3;
     grid-row: 1;
-    padding-left: 6px;
+    justify-self: end;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .emptyState {
+    grid-column: 1 / -1;
+  }
+
+  .hoverPreview {
+    display: none;
   }
 }

@@ -251,7 +251,9 @@ export function useArchiveScrollRestore(view, setArchiveContentVisible) {
 
     let frame = 0;
     let rafId = 0;
-    const MAX_FRAMES = 90;
+    // A position past the loaded content never settles (more pages only
+    // load once visible), so waiting longer only delays the reveal.
+    const MAX_FRAMES = 12;
 
     const tick = () => {
       const settled = applyArchiveScrollSync(view);

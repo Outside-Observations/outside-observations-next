@@ -5,16 +5,16 @@ const baseUrl = SITE_URL;
 
 const CONTACT_MAILTO = 'mailto:contact@outsideobservations.com';
 
-const SERVICES = [
-  'Creative direction and advisory',
-  'Cultural strategy and research',
-  'Art advisory and curation',
-  'Brand positioning and development',
-  'Image and reference research',
-  'Art direction and visual identity',
-  'Editorial and publishing',
-  'Special projects and collaborations',
-  'Curation and sourcing',
+// Rows of the desktop layout, each centered; mobile stacks them all
+const SERVICE_ROWS = [
+  [
+    'Cultural strategy and research',
+    'Art advisory and curation',
+    'Brand positioning and development',
+    'Image and reference research',
+  ],
+  ['Editorial and publishing', 'Special projects and collaborations', 'Curation and sourcing'],
+  ['Art direction and visual identity', 'Creative direction and advisory'],
 ];
 
 export async function generateMetadata() {
@@ -58,9 +58,15 @@ export default function WorkWithUsPage() {
       </h1>
 
       <ul className={styles.tags}>
-        {SERVICES.map((service) => (
-          <li key={service} className={styles.tag}>
-            {service}
+        {SERVICE_ROWS.map((row) => (
+          <li key={row[0]} className={styles.tagRow}>
+            <ul className={styles.tagRowList}>
+              {row.map((service) => (
+                <li key={service} className={styles.tag}>
+                  {service}
+                </li>
+              ))}
+            </ul>
           </li>
         ))}
       </ul>
