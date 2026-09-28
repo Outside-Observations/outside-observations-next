@@ -16,6 +16,19 @@ const SEARCH_PARAM = 'search';
 const DEBOUNCE_MS = 350;
 const MIN_QUERY_LENGTH = 2;
 
+// Shown in turn in the empty field, so visitors learn what the search
+// covers (art name, source, credit, year, subject, tags). Every example
+// returns results in the archive.
+const SEARCH_HINTS = [
+  'Search',
+  'Try an artist or a source',
+  'Try a year, like 1974',
+  'Try a subject, like a kitchen',
+  'Try a tag',
+];
+const HINT_HOLD_MS = 2600;
+const HINT_FADE_MS = 400;
+
 function buildArchiveUrl(query) {
   return query ? `/archive?${SEARCH_PARAM}=${encodeURIComponent(query)}` : '/archive';
 }
@@ -28,6 +41,8 @@ const CLEARED_SEARCH_PAYLOAD = {
 export default function HeaderSearch() {
   const [value, setValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [hintIndex, setHintIndex] = useState(0);
+  const [isHintFading, setIsHintFading] = useState(false);
   const { setSearchPayload } = useArchiveSearchState();
   const pathname = usePathname();
   const router = useRouter();
@@ -116,6 +131,30 @@ export default function HeaderSearch() {
     return () => window.removeEventListener(ARCHIVE_FILTERS_CHANGE_EVENT, handleFiltersChange);
   }, []);
 
+  // Cycle the hints while the field is empty: fade the current one out,
+  // swap the text, fade the next one in. Typing hides the placeholder
+  // anyway, and clearing the field starts the sequence over from "Search".
+  useEffect(() => {
+    if (value) return undefined;
+    setHintIndex(0);
+    setIsHintFading(false);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    let fadeTimer = null;
+    const holdTimer = setInterval(() => {
+      setIsHintFading(true);
+      fadeTimer = setTimeout(() => {
+        setHintIndex((index) => (index + 1) % SEARCH_HINTS.length);
+        setIsHintFading(false);
+      }, HINT_FADE_MS);
+    }, HINT_HOLD_MS);
+
+    return () => {
+      clearInterval(holdTimer);
+      if (fadeTimer) clearTimeout(fadeTimer);
+    };
+  }, [value]);
+
   useEffect(() => () => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -171,9 +210,10 @@ export default function HeaderSearch() {
         type="search"
         value={value}
         onChange={handleChange}
-        placeholder="Search"
+        placeholder={SEARCH_HINTS[hintIndex]}
         aria-label="Search the archive"
         data-searching={isSearching}
+        data-hint-fading={isHintFading}
         autoComplete="off"
       />
     </form>

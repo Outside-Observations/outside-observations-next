@@ -80,6 +80,14 @@ export default async function WritingsPage() {
       />
       <WritingsScrollReset />
       <main className={styles.container}>
+        <h1 className={styles.pageTitle}>
+          <span className={styles.pageTitleText}>
+            Thoughts on
+            <br />
+            How We See
+          </span>
+        </h1>
+
         <section className={styles.intro}>
           <p className={styles.description}>{aboutFirst}</p>
         </section>

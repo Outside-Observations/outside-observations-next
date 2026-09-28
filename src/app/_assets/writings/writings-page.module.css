@@ -4,10 +4,36 @@
      left gutter, title (and description), author, read link, and the free
      space on the right where the cover preview shows. */
   --writings-tracks: 9.3% 19.06% 10.53% auto 1fr;
-  margin-top: calc(var(--archive-container-top-margin) + 33px);
+  /* Same top as the archive's hero title */
+  margin-top: calc(34px + 41px + 20px);
+  /* Above the fixed column lines (z-index 0): they pass behind the page */
+  position: relative;
+  z-index: 1;
   padding: 0 var(--padding) calc(var(--padding) * 6);
   min-height: calc(100dvh - var(--archive-container-top-margin));
   font-family: var(--oracle-font-family);
+}
+
+/* Page title, set like the archive's hero, flush with the description's
+   left edge: it sits on the same tracks, spanning from that column on */
+.pageTitle {
+  display: grid;
+  grid-template-columns: var(--writings-tracks);
+  margin: 0;
+  font-family: var(--oracle-font-family);
+  font-weight: 700;
+  font-size: 90px;
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+  text-align: left;
+}
+
+.pageTitleText {
+  grid-column: 2 / -1;
+}
+
+.intro {
+  margin-top: 100px;
 }
 
 .intro,
@@ -109,8 +135,19 @@
 @media screen and (max-width: 768px) {
   .container {
     --writings-tracks: minmax(0, 1fr) auto;
-    /* Airy top measured on the mobile mockup */
-    margin-top: calc(var(--archive-container-top-margin) + 85px);
+  }
+
+  .pageTitle {
+    font-size: 38px;
+  }
+
+  /* Two mobile tracks only (text, read link): the title spans them both */
+  .pageTitleText {
+    grid-column: 1 / -1;
+  }
+
+  .intro {
+    margin-top: 85px;
   }
 
   /* Stops short of the last column, like the mockup */

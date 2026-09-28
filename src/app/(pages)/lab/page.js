@@ -73,11 +73,8 @@ export default function WorkWithUsPage() {
 
       <div className={styles.contact}>
         <p>
-          If you have a project you think we should be involved in,{' '}
-          <a href={CONTACT_MAILTO}>[write to us.]</a>
-        </p>
-        <p>
-          For general inquiries: <a href={CONTACT_MAILTO}>[Email us.]</a>
+          If you have a project you think we should be involved in, or for general
+          enquiries, <a href={CONTACT_MAILTO}>[write to us.]</a>
         </p>
       </div>
     </div>
