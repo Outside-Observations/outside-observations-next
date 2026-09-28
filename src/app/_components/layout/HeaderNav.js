@@ -102,26 +102,12 @@ export default function HeaderNav({ newsletterTitle, newsletterDescription }) {
               onClick={() => trackNavClick('archive', 'same_page')}
             />
             <NavItem
-              className={`${styles.navLi} work-with-us-nav`}
-              innerNavBubble={true}
-              href="/lab"
-              section="work-with-us"
-              label="Work with us"
-              onClick={() => trackNavClick('work_with_us', 'same_page')}
-            />
-            <NavItem
               className={`${styles.navLi} writings-nav`}
               innerNavBubble={true}
               href="/writings"
               section="writings"
               label="Editorial"
               onClick={() => trackNavClick('writings', 'same_page')}
-            />
-            <NavDropdown
-              className="laboratory-nav"
-              label="Labs"
-              items={laboratoryItems}
-              isActive={isLaboratoryActive}
             />
             <NavItem
               className={`${styles.navLi} radio-nav`}
@@ -155,6 +141,12 @@ export default function HeaderNav({ newsletterTitle, newsletterDescription }) {
                 </div>
               )}
             </NavItem>
+            <NavDropdown
+              className="laboratory-nav"
+              label="Labs"
+              items={laboratoryItems}
+              isActive={isLaboratoryActive}
+            />
             <NavItem
               className={`${styles.navLi} shop-nav`}
               innerNavBubble={true}
@@ -164,6 +156,14 @@ export default function HeaderNav({ newsletterTitle, newsletterDescription }) {
               rel="noreferrer"
               label="Shop"
               onClick={() => trackOutboundClick('shop', SHOP_URL)}
+            />
+            <NavItem
+              className={`${styles.navLi} work-with-us-nav`}
+              innerNavBubble={true}
+              href="/lab"
+              section="work-with-us"
+              label="Work with us"
+              onClick={() => trackNavClick('work_with_us', 'same_page')}
             />
           </menu>
         </nav>

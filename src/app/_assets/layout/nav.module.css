@@ -964,6 +964,12 @@
 .headerSearchInput::placeholder {
   color: var(--nav-text-color);
   opacity: 1;
+  transition: opacity 0.4s var(--transition-effect);
+}
+
+/* Between two hints: the text fades out, changes, then fades back in */
+.headerSearchInput[data-hint-fading='true']::placeholder {
+  opacity: 0;
 }
 
 .headerSearchInput::-webkit-search-cancel-button {

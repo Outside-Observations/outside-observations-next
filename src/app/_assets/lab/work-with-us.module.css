@@ -52,8 +52,7 @@
   text-align: left;
   height: auto;
   min-height: var(--bubble-height);
-  background-color: var(--nav-hover-color);
-  border-radius: var(--border-radius);
+  /* Plain labels, no pill: a grey ground read as a button */
   display: flex;
   align-items: center;
   width: fit-content;
