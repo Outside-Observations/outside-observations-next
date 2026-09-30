@@ -19,9 +19,13 @@ function readStoredArchiveView() {
   return readArchiveViewFromStorage();
 }
 
-export function useArchiveViewToggleState({ archiveContext, initialExternalView = 'images', pathname }) {
+/**
+ * The archive view ('images' or 'list') as seen from the header, which sits
+ * above the archive provider: the context when there is one, otherwise the
+ * stored preference kept in sync through VIEW_CHANGE_EVENT.
+ */
+export function useArchiveCurrentView({ archiveContext, initialExternalView = 'images' }) {
   const [externalView, setExternalView] = useState(initialExternalView);
-  const [hasActiveFilters, setHasActiveFilters] = useState(false);
   const isomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
   isomorphicLayoutEffect(() => {
@@ -49,7 +53,12 @@ export function useArchiveViewToggleState({ archiveContext, initialExternalView 
     };
   }, [archiveContext]);
 
-  const currentView = archiveContext?.view ?? externalView;
+  return { currentView: archiveContext?.view ?? externalView, setExternalView };
+}
+
+export function useArchiveViewToggleState({ archiveContext, initialExternalView = 'images', pathname }) {
+  const { currentView, setExternalView } = useArchiveCurrentView({ archiveContext, initialExternalView });
+  const [hasActiveFilters, setHasActiveFilters] = useState(false);
 
   const handleSetView = useCallback((nextView) => {
     if (nextView !== 'images' && nextView !== 'list') {
@@ -65,7 +74,7 @@ export function useArchiveViewToggleState({ archiveContext, initialExternalView 
       setArchiveViewPreference(nextView);
       setExternalView(nextView);
     }
-  }, [archiveContext, currentView]);
+  }, [archiveContext, currentView, setExternalView]);
 
   const checkActiveFilters = useCallback(() => {
     if (archiveContext) {

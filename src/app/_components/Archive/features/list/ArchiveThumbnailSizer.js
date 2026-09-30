@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 import styles from '@app/_assets/layout/nav.module.css';
 import { getLocalStorage, setLocalStorage } from '@/app/_helpers/storage/localStorage';
+import { useArchiveEntriesSafe } from '@/app/_components/Archive/providers/ArchiveEntriesProvider';
+import { useArchiveCurrentView } from '@/app/_components/Archive/features/list/useArchiveViewToggleState';
 
 const STORAGE_KEY = 'outside-observations-archive-thumb-size-fluid';
 
@@ -42,6 +44,7 @@ function defaultPosition() {
 }
 
 export default function ArchiveThumbnailSizer() {
+  const { currentView } = useArchiveCurrentView({ archiveContext: useArchiveEntriesSafe() });
   const [position, setPosition] = useState(DEFAULT_POSITION);
 
   const applyWidth = useCallback((value) => {
@@ -63,6 +66,11 @@ export default function ArchiveThumbnailSizer() {
     applyWidth(next);
     setLocalStorage(STORAGE_KEY, String(next));
   };
+
+  // The slider sizes thumbnails: nothing to size in the list view
+  if (currentView === 'list') {
+    return null;
+  }
 
   return (
     <div className={`${styles.thumbSizer} ${styles.navBubble}`}>
