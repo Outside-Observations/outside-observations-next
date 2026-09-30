@@ -281,10 +281,6 @@
   cursor: pointer;
 }
 
-:global(body[data-page="archive"]) .archiveNavOptions[data-view="list"] .thumbSizer {
-  display: none;
-}
-
 .featuredNavRow {
   display: contents;
 }
@@ -1139,14 +1135,18 @@
     position: static;
     flex: 0 0 auto;
     width: 100%;
+    /* The desktop row height (23px) clipped the 21px text typed here */
+    height: auto;
     order: 1;
     margin: 28px 0 0;
   }
 
   :global(body.mobile-nav-open) .headerSearchInput {
     width: 100%;
+    height: auto;
     font-size: 21px;
     font-weight: 700;
+    line-height: 1.2;
     letter-spacing: -0.07em;
     padding-bottom: 6px;
     border-bottom: 0.7px solid #000000;
