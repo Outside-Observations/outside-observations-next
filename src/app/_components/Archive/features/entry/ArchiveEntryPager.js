@@ -6,6 +6,8 @@ import Link from 'next/link';
 
 import styles from '@app/_assets/archive/archive-entry.module.css';
 import { useArchiveEntriesSafe } from '@/app/_components/Archive/providers/ArchiveEntriesProvider';
+import SanityImage from '@/sanity/components/SanityImage';
+import { getEntryPosterSize } from '@/app/_components/Archive/features/entry/entryPosterSize';
 
 function getEntrySlug(entry) {
   return entry?.metadata?.slug?.current || entry?.slug?.current || null;
@@ -27,11 +29,10 @@ function buildEntryHref(entry) {
     : `/archive/entry/${slug}`;
 }
 
-function findNeighbourHref(entries, fromIndex, step) {
+function findNeighbour(entries, fromIndex, step) {
   for (let i = fromIndex + step; i >= 0 && i < entries.length; i += step) {
-    const href = buildEntryHref(entries[i]);
-    if (href) {
-      return href;
+    if (buildEntryHref(entries[i])) {
+      return entries[i];
     }
   }
 
@@ -50,14 +51,19 @@ export default function ArchiveEntryPager({ slug }) {
     [entries, slug]
   );
 
-  const previousHref = useMemo(
-    () => (currentIndex < 0 ? null : findNeighbourHref(entries, currentIndex, -1)),
+  const previousEntry = useMemo(
+    () => (currentIndex < 0 ? null : findNeighbour(entries, currentIndex, -1)),
     [entries, currentIndex]
   );
-  const nextHref = useMemo(
-    () => (currentIndex < 0 ? null : findNeighbourHref(entries, currentIndex, 1)),
+  const nextEntry = useMemo(
+    () => (currentIndex < 0 ? null : findNeighbour(entries, currentIndex, 1)),
     [entries, currentIndex]
   );
+  const previousHref = buildEntryHref(previousEntry);
+  const nextHref = buildEntryHref(nextEntry);
+  // Posters of both neighbours, requested with the entry page's own props so
+  // the browser picks the same file and finds it in cache on arrival
+  const preloads = [previousEntry, nextEntry].filter((entry) => entry?.poster?.asset);
 
   const lookaheadRef = useRef(0);
   const MAX_LOOKAHEAD_PAGES = 3;
@@ -80,6 +86,14 @@ export default function ArchiveEntryPager({ slug }) {
       loadMore();
     }
   }, [currentIndex, entries.length, hasMore, isLoadingMore, loadMore]);
+
+  // Both neighbours are fetched ahead, so an arrow press only has to render.
+  // 'full': the archive layout is dynamic, a default prefetch would stop at
+  // the layout and leave the page itself to fetch on press.
+  useEffect(() => {
+    if (previousHref) router.prefetch(previousHref, { kind: 'full' });
+    if (nextHref) router.prefetch(nextHref, { kind: 'full' });
+  }, [router, previousHref, nextHref]);
 
   const goTo = useCallback(
     (href) => {
@@ -170,13 +184,33 @@ export default function ArchiveEntryPager({ slug }) {
     return null;
   }
 
+  // The arrows are plain links, without data-transition: like keys and swipe
+  // they skip the site-wide exit fade and only get PageTransition's short
+  // entry-to-entry fade-in. Prefetching is handled above.
   return (
     <nav className={styles.archiveEntryPager} aria-label="Archive entry navigation">
+      {preloads.length > 0 ? (
+        <div className={styles.archiveEntryPagerPreload} aria-hidden="true">
+          {preloads.map((entry) => {
+            const { width, height } = getEntryPosterSize(entry);
+            return (
+              <SanityImage
+                key={getEntrySlug(entry) || entry._id}
+                image={entry.poster}
+                alt=""
+                width={width}
+                height={height}
+                loading="eager"
+              />
+            );
+          })}
+        </div>
+      ) : null}
       {previousHref ? (
         <Link
           href={previousHref}
           className={`${styles.archiveEntryPagerButton} ${styles.archiveEntryPagerPrevious}`}
-          data-transition="nav"
+          prefetch={false}
           aria-label="Previous entry"
           rel="prev"
         />
@@ -191,7 +225,7 @@ export default function ArchiveEntryPager({ slug }) {
         <Link
           href={nextHref}
           className={`${styles.archiveEntryPagerButton} ${styles.archiveEntryPagerNext}`}
-          data-transition="nav"
+          prefetch={false}
           aria-label="Next entry"
           rel="next"
         />

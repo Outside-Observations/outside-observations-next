@@ -55,7 +55,9 @@
   height: max-content;
   flex: none;
   max-height: calc(100dvh - var(--archive-container-bottom-margin) - var(--archive-container-top-margin));
-  overflow: auto;
+  /* Vertical scroller only: a caption running past the last column must
+     not open a horizontal scrollbar */
+  overflow: hidden auto;
   /* Prevent the browser from auto-adjusting scrollTop when content height changes (images, overflow toggles). */
   overflow-anchor: none;
 }
@@ -401,6 +403,40 @@
   gap: 3px;
   width: fit-content;
   max-width: 100%;
+}
+
+/* No room for the caption inside the image (measured on hover by
+   ArchiveEntryMediaLink): it moves to .hoverCaption, while the veil still
+   marks the image. Hidden with visibility so it can still be measured. */
+.container[data-view="images"] .archiveEntryImageWrapper[data-caption-outside="true"] .archiveEntryImageOverlayContent {
+  visibility: hidden;
+}
+
+/* Tooltip for small thumbnails: one element for the whole grid, placed by
+   ArchiveHoverCaption just below (or above) the hovered image. It sits
+   outside the clipped, paint-contained thumbnails so it can overlap their
+   neighbours. Hidden state keeps the last caption so it can fade out. */
+.hoverCaption {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  width: max-content;
+  max-width: min(360px, calc(100vw - var(--padding) * 2));
+  opacity: 0;
+  transition: opacity var(--transition-time) var(--transition-effect);
+  pointer-events: none;
+}
+
+.hoverCaption[data-visible="true"] {
+  opacity: 1;
+}
+
+.container[data-view="images"] .hoverCaption[data-visited="true"] .archiveEntryImageOverlayContentItem {
+  background-color: var(--pink-color);
 }
 
 .container[data-view="images"] .archiveEntryImageOverlayContentItem {

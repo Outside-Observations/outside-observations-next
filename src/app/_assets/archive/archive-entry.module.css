@@ -552,3 +552,13 @@
     right: auto;
   }
 }
+
+/* Hidden neighbour posters, fetched ahead for the arrows and swipes */
+.archiveEntryPagerPreload {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}

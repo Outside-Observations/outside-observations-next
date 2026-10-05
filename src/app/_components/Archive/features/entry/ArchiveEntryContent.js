@@ -1,4 +1,5 @@
 import SanityImage from '@/sanity/components/SanityImage';
+import { getEntryPosterSize } from '@/app/_components/Archive/features/entry/entryPosterSize';
 import ArchiveEntryVideo from './ArchiveEntryVideo';
 import { ProtectedMediaWrapper } from './ProtectedMediaWrapper';
 import styles from '@app/_assets/archive/archive-entry.module.css';
@@ -152,8 +153,7 @@ export function ArchiveEntryArticle({ entry, headingId }) {
     );
   }
 
-  const posterWidth = entry?.poster?.dimensions?.width || 1200;
-  const posterHeight = entry?.poster?.dimensions?.aspectRatio ? Math.round(posterWidth / entry.poster.dimensions.aspectRatio) : posterWidth;
+  const { width: posterWidth, height: posterHeight } = getEntryPosterSize(entry);
   const layout = entry?.poster?.dimensions?.aspectRatio > 1 ? 'landscape' : 'portrait';
   const isVideo = entry.mediaType === 'video';
 

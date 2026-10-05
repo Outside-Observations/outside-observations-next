@@ -11,9 +11,29 @@ import ArchiveVisualEssay from '@/app/_components/Archive/features/entry/Archive
 import SanityVideo from '@/sanity/components/SanityVideo';
 import SanityImage from '@/sanity/components/SanityImage';
 import { ProtectedMediaWrapper } from '@/app/_components/Archive/features/entry/ProtectedMediaWrapper';
+import {
+  showHoverCaption,
+  hideHoverCaption,
+} from '@/app/_components/Archive/state/archiveHoverCaptionStore';
 import styles from '@app/_assets/archive/archive-page.module.css';
 
 const POSTER_WIDTH = 300;
+const HOVER_CAPTION_QUERY = '(hover: hover) and (min-width: 769px)';
+
+// The caption fits when it neither runs past the image's width nor stacks
+// higher than the room the overlay leaves for it. Measured on the hidden
+// in-image caption, which keeps its layout (visibility only).
+function captionFitsInImage(wrapper) {
+  const overlay = wrapper.querySelector(`.${styles.archiveEntryImageOverlay}`);
+  const caption = wrapper.querySelector(`.${styles.archiveEntryImageOverlayContent}`);
+  if (!overlay || !caption) return true;
+  const overlayStyle = getComputedStyle(overlay);
+  const roomWidth = overlay.clientWidth
+    - parseFloat(overlayStyle.paddingLeft) - parseFloat(overlayStyle.paddingRight);
+  const roomHeight = overlay.clientHeight
+    - parseFloat(overlayStyle.paddingTop) - parseFloat(overlayStyle.paddingBottom);
+  return caption.scrollWidth <= Math.ceil(roomWidth) && caption.offsetHeight <= Math.ceil(roomHeight);
+}
 
 function ArchiveEntryMediaLink({
   entry,
@@ -97,8 +117,30 @@ function ArchiveEntryMediaLink({
   const shouldShowMetadataOverlay = !hasContentWarning || hasConsent;
   const shouldShowOverlayContent = shouldShowMetadataOverlay && !isVisualEssay;
 
+  // Only when the caption has no room in the image (see archiveHoverCaptionStore):
+  // the hovered thumbnail then hides it and hands it to the shared tooltip.
+  const captionId = entry._id;
+  const handleMouseEnter = (event) => {
+    const wrapper = event.currentTarget;
+    if (!shouldShowOverlayContent) return;
+    if (!window.matchMedia(HOVER_CAPTION_QUERY).matches) return;
+    const fits = captionFitsInImage(wrapper);
+    wrapper.dataset.captionOutside = fits ? 'false' : 'true';
+    if (fits) return;
+    const items = [overlayYear, overlaySource, overlayArtName]
+      .map((value) => String(value ?? '').trim())
+      .filter(Boolean);
+    if (items.length === 0) return;
+    showHoverCaption({ id: captionId, rect: wrapper.getBoundingClientRect(), items, visited: isVisited });
+  };
+  const handleMouseLeave = () => hideHoverCaption(captionId);
+
   const content = (
-    <div className={styles.archiveEntryImageWrapper}>
+    <div
+      className={styles.archiveEntryImageWrapper}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {isVisualEssay ? (
         <ArchiveVisualEssay
           entry={entry}

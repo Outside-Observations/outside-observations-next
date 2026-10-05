@@ -5,6 +5,7 @@ import { gsap } from 'gsap';
 import ArchiveEntry from '@/app/_components/Archive/features/entry/ArchiveEntryListRow';
 import ArchiveEntryMediaLink from '@/app/_components/Archive/features/entry/ArchiveEntryMediaLink';
 import ArchiveListLegend from '@/app/_components/Archive/features/list/ArchiveListLegend';
+import ArchiveHoverCaption from '@/app/_components/Archive/features/list/ArchiveHoverCaption';
 import { useArchiveListSorting } from '@/app/_components/Archive/features/list/ArchiveListSorting';
 import { useArchiveListScrollPersistence } from '@/app/_components/Archive/features/list/useArchiveListScrollPersistence';
 import { useArchiveListMeasurement } from '@/app/_components/Archive/features/list/useArchiveListMeasurement';
@@ -232,23 +233,26 @@ export default function ArchiveListContent() {
           >
             {hasEntries ? (
               view === 'images' ? (
-                <MaskScrollWrapper className={`${styles.containerContent} isAtTop`}>
-                  {visibleEntries.map((entry, index) => (
-                    <ArchiveEntryMediaLink
-                      key={entry._id}
-                      entry={entry}
-                      index={index}
-                      onImageLoad={handleImageLoad}
-                      currentView={view}
-                      currentSearchStatus={searchStatus}
+                <>
+                  <MaskScrollWrapper className={`${styles.containerContent} isAtTop`}>
+                    {visibleEntries.map((entry, index) => (
+                      <ArchiveEntryMediaLink
+                        key={entry._id}
+                        entry={entry}
+                        index={index}
+                        onImageLoad={handleImageLoad}
+                        currentView={view}
+                        currentSearchStatus={searchStatus}
+                      />
+                    ))}
+                    <div
+                      ref={infiniteSentinelRef}
+                      className={styles.archivePaginationSentinel}
+                      aria-hidden="true"
                     />
-                  ))}
-                  <div
-                    ref={infiniteSentinelRef}
-                    className={styles.archivePaginationSentinel}
-                    aria-hidden="true"
-                  />
-                </MaskScrollWrapper>
+                  </MaskScrollWrapper>
+                  <ArchiveHoverCaption />
+                </>
               ) : (
                 <ScrollContainerWrapper
                   ref={scrollContainerRef}
