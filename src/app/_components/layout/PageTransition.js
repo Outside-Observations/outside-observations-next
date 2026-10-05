@@ -306,6 +306,12 @@ export default function PageTransition({ children }) {
       navigationFadeInAnimationRef.current.kill();
     }
 
+    // Moving between two archive entries (arrows, keys, swipe) is browsing,
+    // not a page change: no exit fade, no hold, a very short fade-in.
+    const isEntryToEntry =
+      previousPathnameRef.current.startsWith('/archive/entry/') &&
+      pathname.startsWith('/archive/entry/');
+
     // Fade in new content (and the page-scoped header row with it)
     const content = contentRef.current;
     if (content) {
@@ -313,9 +319,9 @@ export default function PageTransition({ children }) {
       gsap.set(targets, { opacity: 0 });
       navigationFadeInAnimationRef.current = gsap.to(targets, {
         opacity: 1,
-        duration: 0.3,
+        duration: isEntryToEntry ? 0.1 : 0.3,
         ease: 'power2.out',
-        delay: 0.3,
+        delay: isEntryToEntry ? 0 : 0.3,
         onComplete: () => {
           isNavigatingRef.current = false;
           navigationFadeInAnimationRef.current = null;

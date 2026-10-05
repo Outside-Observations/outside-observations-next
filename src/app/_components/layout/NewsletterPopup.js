@@ -11,7 +11,7 @@ const DEFAULT_DESCRIPTION = "Look at anything carefully enough, even a speck of 
 
 /**
  * Newsletter popup shown on all pages in the same position (fixed top-right).
- * Closed: button with "Newsletter" text. Open: title, description, form + close (X) button.
+ * Closed: button with "Subscribe" text. Open: title, description, form + close (X) button.
  * On home for returning visitors (data-home-visitor="returning"): always open, no close button.
  * On mobile, only visible on the homepage.
  */
@@ -48,7 +48,7 @@ export default function NewsletterPopup({ title, description }) {
           aria-expanded={isOpen}
           aria-label={isOpen ? 'Close newsletter signup' : 'Open newsletter signup'}
         >
-          Newsletter
+          Subscribe
         </button>
       )}
       {showOpenContent && (
