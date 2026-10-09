@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 import {
   DEFAULT_ARCHIVE_PAGE_LIMIT,
   getPaginatedArchivePage,
@@ -11,24 +10,19 @@ import { useTimezoneRedirect } from '@/lib/closedArchiveHours';
 
 export const revalidate = 60;
 
-function isArchiveIndexPath(pathname) {
-  return pathname === '/archive' || pathname === '/archive/';
-}
-
+// The first page is loaded for every archive route, entry pages included.
+// Reading the request path to load it on the index only (headers()) made
+// the whole /archive section render on every request, uncached. Entry
+// pages also need the list anyway, for the previous / next arrows.
 export default async function ArchiveLayout({ children }) {
-  const pathname = (await headers()).get('x-pathname') || '';
-  const isArchiveIndex = isArchiveIndexPath(pathname);
-
-  const initialPage = isArchiveIndex
-    ? await getPaginatedArchivePage({
-      cursor: null,
-      limit: DEFAULT_ARCHIVE_PAGE_LIMIT,
-      sortColumn: null,
-      sortDirection: null,
-      moodTags: [],
-      searchIds: [],
-    })
-    : { items: [], nextCursor: null, hasMore: true };
+  const initialPage = await getPaginatedArchivePage({
+    cursor: null,
+    limit: DEFAULT_ARCHIVE_PAGE_LIMIT,
+    sortColumn: null,
+    sortDirection: null,
+    moodTags: [],
+    searchIds: [],
+  });
   const content = (
     <>
       {children}
@@ -42,7 +36,7 @@ export default async function ArchiveLayout({ children }) {
         initialEntries={initialPage.items}
         initialCursor={initialPage.nextCursor}
         initialHasMore={initialPage.hasMore}
-        skipInitialFetch={isArchiveIndex && initialPage.items.length > 0}
+        skipInitialFetch={initialPage.items.length > 0}
       >
         {useTimezoneRedirect ? content : <ClosedArchiveRedirect>{content}</ClosedArchiveRedirect>}
       </ArchiveEntriesProvider>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import styles from '@app/_assets/layout/nav.module.css';
+import { MOBILE_MENU_CLOSE_EVENT } from '@/app/_helpers/dom/mobileMenu';
 
 // Must outlast the CSS closing animation (mobileMenuPieceOut + header fade)
 const CLOSE_DURATION = 340;
@@ -48,6 +49,13 @@ export default function MobileMenuButton() {
     }
     setPhase((current) => (current === 'open' ? 'closing' : current));
   }, [pathname]);
+
+  // Same fade for actions that stay on the route (a search on the archive)
+  useEffect(() => {
+    const close = () => setPhase((current) => (current === 'open' ? 'closing' : current));
+    window.addEventListener(MOBILE_MENU_CLOSE_EVENT, close);
+    return () => window.removeEventListener(MOBILE_MENU_CLOSE_EVENT, close);
+  }, []);
 
   useEffect(() => {
     return () => {

@@ -372,10 +372,6 @@
   color: var(--bg-color);
 }
 
-:global(body[data-page="unexpected-connections"]) .navNavigation .navLi:global(.radio-nav)[data-active="true"] .radioNavButtons {
-  background-color: var(--fg-color-75);
-}
-
 :global(body[data-page="widline-cadet"]) .navNavigation .navLi:global(.radio-nav)[data-active="true"] .radioNavButtons {
   background-color: #a5a5a5;
 }
@@ -430,6 +426,64 @@
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
+/* Mobile: playing radio, player minimized. In the closed header the link
+   and its controls read as one capsule (same grey, black icons, no seam).
+   Inside the menu modal the controls drop their pill and scale up to sit
+   next to the 38px link. */
+@media (max-width: 768px) {
+  :global(body:not(.mobile-nav-open)) .navNavigation .navLi:global(.radio-nav)[data-active="true"] {
+    gap: 0;
+  }
+
+  :global(body:not(.mobile-nav-open)) .navNavigation .navLi:global(.radio-nav)[data-active="true"] .navLink {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    padding-right: 4px;
+  }
+
+  .navNavigation .navLi:global(.radio-nav)[data-active="true"] .radioNavButtons {
+    gap: 0;
+    padding: 0 4px 0 0;
+    background-color: var(--light-gray-color);
+    color: var(--nav-text-color);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  }
+
+  .radioNavButton {
+    width: 22px;
+  }
+
+  /* The controls hang off the right of the word, so "Radio" stays centred
+     like every other link of the modal. */
+  :global(body.mobile-nav-open) .navNavigation .navLi:global(.radio-nav)[data-active="true"] .radioNavButtons {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 8px);
+    transform: translateY(-50%);
+    padding: 0;
+    background-color: transparent;
+  }
+
+  :global(body.mobile-nav-open) .radioNavButton {
+    width: 30px;
+    height: 30px;
+  }
+
+  :global(body.mobile-nav-open) .expandButton::before {
+    width: 13px;
+    height: 13px;
+    border-top-width: 3px;
+    border-right-width: 1.5px;
+    border-bottom-width: 1.5px;
+    border-left-width: 1.5px;
+  }
+
+  :global(body.mobile-nav-open) .radioNavButton.closeButton::before,
+  :global(body.mobile-nav-open) .radioNavButton.closeButton::after {
+    width: 16px;
+    height: 2px;
+  }
+}
+
 :global(body[data-page="archive-entry"]) .header {
   overflow: hidden;
   opacity: 0;
@@ -450,12 +504,6 @@
 
 :global(body[data-page="unexpected-connections"]) .archiveNavOption {
   display: none;
-}
-
-:global(body[data-page="unexpected-connections"]) .navBubble,
-:global(body[data-page="unexpected-connections"]) .helpNav {
-  background-color: var(--fg-color-75);
-  color: var(--white-color);
 }
 
 :global(body[data-page="widline-cadet"]) .navBubble,
@@ -487,32 +535,6 @@
 
 :global(body[data-page="widline-cadet"]) .navDropdown[data-open="true"] .navDropdownTrigger {
   background-color: var(--nav-widline-active-color);
-  color: var(--white-color);
-}
-
-:global(body[data-page="unexpected-connections"]) .navNavigation .navBubble,
-:global(body[data-page="unexpected-connections"]) .navDropdownMenu .navBubble {
-  border-radius: var(--border-radius);
-}
-:global(body[data-page="unexpected-connections"]) .navNavigation .navLi[data-active="true"] .navLink {
-  background-color: var(--fg-color);
-  color: var(--white-color);
-}
-
-:global(body[data-page="unexpected-connections"]) .navNavigation .navLi[data-active="true"] .navLink::before {
-  background-color: var(--white-color);
-}
-
-@media (hover: hover) {
-  :global(body[data-page="unexpected-connections"]) .navNavigation .navLink:hover,
-  :global(body[data-page="unexpected-connections"]) .headerUtilities .newsletterPopupWrapper > .navBubble:hover {
-    background-color: var(--fg-color);
-    color: var(--white-color);
-  }
-}
-
-:global(body[data-page="unexpected-connections"]) .navDropdown[data-open="true"] .navDropdownTrigger {
-  background-color: var(--fg-color);
   color: var(--white-color);
 }
 
@@ -782,11 +804,6 @@
   background-color: var(--gray-color);
   color: var(--bg-color);
   padding: 5px 0 5px;
-}
-
-:global(body[data-page="unexpected-connections"]) .newsletterPopupContentText,
-:global(body[data-page="unexpected-connections"]) .newsletterPopupKlaviyoFormContainer {
-  background-color: var(--fg-color-75);
 }
 
 /* ------------------------------------------------------------ */

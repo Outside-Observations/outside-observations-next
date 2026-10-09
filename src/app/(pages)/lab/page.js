@@ -5,22 +5,10 @@ const baseUrl = SITE_URL;
 
 const CONTACT_MAILTO = 'mailto:contact@outsideobservations.com';
 
-// Rows of the desktop layout, each centered; mobile stacks them all
-const SERVICE_ROWS = [
-  [
-    'Cultural strategy and research',
-    'Art advisory and curation',
-    'Brand positioning and development',
-    'Image and reference research',
-  ],
-  ['Editorial and publishing', 'Special projects and collaborations', 'Curation and sourcing'],
-  ['Art direction and visual identity', 'Creative direction and advisory'],
-];
-
 export async function generateMetadata() {
   const title = `Work with us | ${SITE_NAME}`;
   const description =
-    `${SITE_NAME} works with creatives, brands, institutions, and individuals across culture. Get in touch for new projects and ideas.`;
+    `${SITE_NAME} is open to projects of all kinds, drawing on strategy, curation, and art direction. Get in touch for new projects and ideas.`;
 
   return {
     title,
@@ -52,24 +40,16 @@ export async function generateMetadata() {
 export default function WorkWithUsPage() {
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>
-        Outside Observations works with creatives, brands, institutions, and
-        individuals across culture.
-      </h1>
+      <div className={styles.main}>
+        <h1 className={styles.title}>How to Work with Outside Observations</h1>
 
-      <ul className={styles.tags}>
-        {SERVICE_ROWS.map((row) => (
-          <li key={row[0]} className={styles.tagRow}>
-            <ul className={styles.tagRowList}>
-              {row.map((service) => (
-                <li key={service} className={styles.tag}>
-                  {service}
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
+        <p className={styles.intro}>
+          We’re open to projects of all kinds. Our work is grounded in our personal
+          research practice and the way we see the world. We draw on strategy,
+          curation, and art direction, with an approach shaped by what each project
+          needs.
+        </p>
+      </div>
 
       <div className={styles.contact}>
         <p>

@@ -60,10 +60,6 @@ export default function ArchiveHero() {
   }, []);
 
   return (
-    <h1 className={styles.archiveHero} aria-label="An Index of What We Found">
-      An Index of
-      <br />
-      What We Found
-    </h1>
+    <h1 className={styles.archiveHero}>An Index of What We Found</h1>
   );
 }

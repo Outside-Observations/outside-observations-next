@@ -13,6 +13,13 @@ function isNextRouterPrefetch(request) {
 export function middleware(request) {
   const pathname = request.nextUrl.pathname
 
+  // Returning visitors skip the home intro. Done here rather than in the
+  // page: reading the cookie in the page made the home render on every
+  // request, and the redirect then cost a second server render.
+  if (pathname === '/' && request.cookies.get('oo_visited')?.value === '1') {
+    return NextResponse.redirect(new URL('/archive', request.url))
+  }
+
   // Closed archive: redirect by open/closed window (only when useTimezoneRedirect)
   const isArchiveEntryPage = pathname.startsWith('/archive/entry/');
   if (useTimezoneRedirect && pathname.startsWith('/archive') && !isArchiveEntryPage) {

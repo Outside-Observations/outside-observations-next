@@ -1,5 +1,3 @@
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { getSiteSettings } from '@/app/_data/archive';
 import HomeContent from '@/app/_components/Home/HomeContent';
 import { SITE_NAME, SITE_URL } from '@/lib/siteUrl';
@@ -44,11 +42,7 @@ export async function generateMetadata() {
 // Enable ISR - revalidate every 60 seconds
 export const revalidate = 60;
 
-export default async function Home() {
-  const cookieStore = await cookies();
-  if (cookieStore.get('oo_visited')?.value === '1') {
-    redirect('/archive');
-  }
-
+// Returning visitors are redirected to the archive by the middleware
+export default function Home() {
   return <HomeContent />;
 }
