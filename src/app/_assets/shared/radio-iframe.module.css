@@ -16,9 +16,11 @@
   border: none;
 }
 
-:global(body[data-page="unexpected-connections"]) .radioIframe,
-:global(body[data-page="lab"]) .radioNavButtons {
-  background-color: var(--fg-color-75);
+/* The 384px player is wider than a phone: keep the side gutters */
+@media (max-width: 768px) {
+  .radioIframe {
+    width: min(384px, calc(100vw - 20px));
+  }
 }
 
 .radioIframeDragging {

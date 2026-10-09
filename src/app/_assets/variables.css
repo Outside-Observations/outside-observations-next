@@ -99,12 +99,13 @@
    --hero-progress (written by ArchiveHero while the grid scrolls) scrubs the
    reserved space back to zero, so the rows follow the gesture. */
 body[data-page="archive"] {
-  --archive-hero-base: 220px;
+  /* Title height (one line) + the gap above the view toggles */
+  --archive-hero-base: 111px;
   --archive-hero-block: calc(var(--archive-hero-base) * (1 - var(--hero-progress, 0)));
 }
 
 @media screen and (max-width: 768px) {
   body[data-page="archive"] {
-    --archive-hero-base: 110px;
+    --archive-hero-base: 66px;
   }
 }

@@ -11,6 +11,7 @@ import {
   SESSION_STORAGE_KEYS,
   readFromSessionStorage,
 } from '@/app/_components/Archive/state/archiveStorage';
+import { isMobileMenuOpen, requestMobileMenuClose } from '@/app/_helpers/dom/mobileMenu';
 
 const SEARCH_PARAM = 'search';
 const DEBOUNCE_MS = 350;
@@ -171,17 +172,27 @@ export default function HeaderSearch() {
 
     const query = nextValue.trim();
 
+    // In the mobile menu the search runs on Enter only: a live search would
+    // leave for the archive (closing the menu) in the middle of typing.
+    if (isMobileMenuOpen()) {
+      return;
+    }
+
     debounceRef.current = setTimeout(() => {
       if (query.length >= MIN_QUERY_LENGTH && query !== lastQueryRef.current) {
         runSearch(query);
       } else if (query.length === 0 && lastQueryRef.current) {
-        lastQueryRef.current = null;
-        setSearchPayload(CLEARED_SEARCH_PAYLOAD);
-        if (window.location.pathname === '/archive' && window.location.search) {
-          window.history.replaceState(window.history.state, '', '/archive');
-        }
+        clearSearch();
       }
     }, DEBOUNCE_MS);
+  };
+
+  const clearSearch = () => {
+    lastQueryRef.current = null;
+    setSearchPayload(CLEARED_SEARCH_PAYLOAD);
+    if (window.location.pathname === '/archive' && window.location.search) {
+      window.history.replaceState(window.history.state, '', '/archive');
+    }
   };
 
   const handleChange = (event) => {
@@ -197,9 +208,25 @@ export default function HeaderSearch() {
     }
 
     const query = value.trim();
-    if (query.length > 0) {
-      runSearch(query);
+    if (query.length === 0 && !lastQueryRef.current) {
+      return;
     }
+
+    // Show the results: close the mobile menu and drop the keyboard. Only
+    // needed on the archive itself, elsewhere the route change closes it.
+    if (isMobileMenuOpen()) {
+      event.currentTarget.querySelector('input')?.blur();
+      requestMobileMenuClose();
+    }
+
+    if (query.length === 0) {
+      clearSearch();
+      return;
+    }
+    if (query === lastQueryRef.current && window.location.pathname === '/archive') {
+      return;
+    }
+    runSearch(query);
   };
 
   return (

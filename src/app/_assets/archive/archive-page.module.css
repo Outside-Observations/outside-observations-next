@@ -2,16 +2,19 @@
    toggles. Everything below shifts down by --archive-hero-block. */
 .archiveHero {
   position: fixed;
-  top: calc(34px + 41px + 20px);
+  /* Optically centred between the menu and the view toggles */
+  top: calc(34px + 41px + 35px);
   left: 0;
   right: 0;
   margin: 0;
   text-align: center;
   font-family: var(--oracle-font-family);
   font-weight: 700;
-  font-size: 90px;
+  /* One line, smaller than the other page titles: the grid is the content */
+  font-size: 65px;
   line-height: 0.95;
   letter-spacing: -0.07em;
+  white-space: nowrap;
   pointer-events: none;
   /* Under the grid container (z-index 1): while scrubbing out, the title
      slides behind the filters and the images, not over them. */
@@ -23,8 +26,10 @@
 }
 
 @media screen and (max-width: 768px) {
+  /* Still one line on a phone: scales down with the width on the narrowest */
   .archiveHero {
-    font-size: 38px;
+    top: calc(34px + 41px + 20px);
+    font-size: min(30px, 8.3vw);
   }
 }
 
