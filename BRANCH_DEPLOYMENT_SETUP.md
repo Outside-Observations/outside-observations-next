@@ -1,5 +1,10 @@
 # Branch Deployment Setup Guide
 
+> **Current setup:** `production` serves outsideobservations.com, `main` serves
+> main.outsideobservations.com, and `preview` serves preview.outsideobservations.com
+> (branch deploy + branch subdomain on Netlify DNS). Update the preview with
+> `git push origin main:preview`.
+
 This guide explains how to set up two different deployment environments:
 - **Production branch** → Live site (launch countdown only)
 - **Main branch** → Preview site on subdomain (full site access, password protected)
