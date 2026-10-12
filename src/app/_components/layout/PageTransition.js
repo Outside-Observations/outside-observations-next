@@ -5,6 +5,24 @@ import { useRouter, usePathname } from 'next/navigation';
 import { gsap } from 'gsap';
 import { isFirstWebsiteVisit } from '@/app/_helpers/tracking/websiteVisitState';
 
+// Longest wait for a new archive entry's image before revealing it anyway
+const ENTRY_REVEAL_MAX_WAIT_MS = 200;
+
+/**
+ * Resolves once the new entry can be shown in its final state: its image
+ * decoded (the pager preloads it, so this is near instant) and two frames
+ * for the layout to settle. Capped, so a slow image never blocks the page.
+ */
+function waitForEntryReady(root) {
+  const image = root.querySelector('img[class*="archiveEntryModalPoster"]');
+  const decoded = image?.decode ? image.decode().catch(() => {}) : Promise.resolve();
+  const settled = new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+  const capped = new Promise((resolve) => setTimeout(resolve, ENTRY_REVEAL_MAX_WAIT_MS));
+  return Promise.race([Promise.all([decoded, settled]), capped]);
+}
+
 /**
  * PageTransition - Handles page transitions and initial load animations
  * 
@@ -266,8 +284,10 @@ export default function PageTransition({ children }) {
     };
   }, [loaderComplete, showLoader]);
 
-  // Handle pathname change - fade in new content (no CircleAnimation on navigation)
-  useEffect(() => {
+  // Handle pathname change - fade in new content (no CircleAnimation on navigation).
+  // Layout effect: the new page must be hidden before the browser paints it,
+  // otherwise it shows for a frame, disappears and only then fades in.
+  useLayoutEffect(() => {
     // Skip if pathname hasn't changed
     if (previousPathnameRef.current === pathname) {
       return;
@@ -314,22 +334,33 @@ export default function PageTransition({ children }) {
 
     // Fade in new content (and the page-scoped header row with it)
     const content = contentRef.current;
+    let cancelled = false;
     if (content) {
       const targets = pageChrome ? [content, pageChrome] : [content];
       gsap.set(targets, { opacity: 0 });
-      navigationFadeInAnimationRef.current = gsap.to(targets, {
-        opacity: 1,
-        duration: isEntryToEntry ? 0.1 : 0.3,
-        ease: 'power2.out',
-        delay: isEntryToEntry ? 0 : 0.3,
-        onComplete: () => {
-          isNavigatingRef.current = false;
-          navigationFadeInAnimationRef.current = null;
-          if (pageChrome) {
-            gsap.set(pageChrome, { clearProps: 'opacity' });
-          }
-        },
-      });
+      const fadeIn = () => {
+        if (cancelled) return;
+        navigationFadeInAnimationRef.current = gsap.to(targets, {
+          opacity: 1,
+          duration: isEntryToEntry ? 0.1 : 0.3,
+          ease: 'power2.out',
+          delay: isEntryToEntry ? 0 : 0.3,
+          onComplete: () => {
+            isNavigatingRef.current = false;
+            navigationFadeInAnimationRef.current = null;
+            if (pageChrome) {
+              gsap.set(pageChrome, { clearProps: 'opacity' });
+            }
+          },
+        });
+      };
+      // Entry to entry has no hold to hide behind: reveal the new entry only
+      // once its image is decoded and laid out, so it appears in place.
+      if (isEntryToEntry) {
+        waitForEntryReady(content).then(fadeIn);
+      } else {
+        fadeIn();
+      }
     } else if (pageChrome) {
       gsap.set(pageChrome, { clearProps: 'opacity' });
     }
@@ -337,6 +368,7 @@ export default function PageTransition({ children }) {
     previousPathnameRef.current = pathname;
     
     return () => {
+      cancelled = true;
       if (navigationFadeInAnimationRef.current) {
         navigationFadeInAnimationRef.current.kill();
         navigationFadeInAnimationRef.current = null;

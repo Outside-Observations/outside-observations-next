@@ -229,6 +229,23 @@ export default async function ArchiveEntryPage({ params }) {
     neighbours = null;
   }
 
+  // Shared by the Suspense fallback and the final entry, so both match
+  const closeButton = (
+    <button className={styles.archiveEntryCloseButton}>
+      Close
+    </button>
+  );
+  const entryContent = (
+    <div className={styles.archiveEntryContentWrapper} data-entry-type={entryType}>
+      <ArchiveEntryArticle entry={entry} />
+    </div>
+  );
+  const entryAside = (
+    <aside className={styles.archiveEntryAside}>
+      <ArchiveEntryMetadata entry={entry} />
+    </aside>
+  );
+
   return (
     <ErrorBoundary fallback={ArchiveEntryErrorFallback}>
       {neighbours?.previous?.slug ? (
@@ -239,24 +256,27 @@ export default async function ArchiveEntryPage({ params }) {
       ) : null}
       <ArchiveEntryJsonLd entry={entry} slug={entrySlug} />
       <ArchiveEntryVisitTracker slug={entrySlug} />
+      {/* The fallback must sit exactly where the entry will: it can show
+          for a moment on a first visit, and outside the centred backdrop it
+          made the image jump from the top of the screen to its place. */}
       <Suspense
         fallback={
-          <div className={styles.archiveEntryContentWrapper} data-entry-type={entryType}>
-            <ArchiveEntryArticle entry={entry} />
+          <div>
+            <div className={styles.archiveEntryBackdrop}>
+              <div className={styles.archiveEntryBackdropContent}>
+                {closeButton}
+                {entryContent}
+                {entryAside}
+              </div>
+            </div>
           </div>
         }
       >
         <ArchiveEntryBackdrop entry={entry}>
-          <button className={styles.archiveEntryCloseButton}>
-            Close
-          </button>
-          <div className={styles.archiveEntryContentWrapper} data-entry-type={entryType}>
-            <ArchiveEntryArticle entry={entry} />
-          </div>
+          {closeButton}
+          {entryContent}
           <ArchiveEntryPager slug={entrySlug} />
-          <aside className={styles.archiveEntryAside}>
-            <ArchiveEntryMetadata entry={entry} />
-          </aside>
+          {entryAside}
         </ArchiveEntryBackdrop>
       </Suspense>
     </ErrorBoundary>

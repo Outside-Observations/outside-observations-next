@@ -467,6 +467,9 @@
 /* ------------------------------------------------------------ */
 /* ------------------------------------------------------------ */
 
+/* Above the entry content (z-index 1000): a visual essay's horizontal
+   strip spans the whole width and would otherwise swallow the arrows. The
+   layer itself lets clicks through, only the buttons catch them. */
 .archiveEntryPager {
   position: fixed;
   top: 0;
@@ -474,7 +477,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 5;
+  z-index: 1001;
 }
 
 .archiveEntryPagerButton {
@@ -536,7 +539,7 @@
     display: flex;
     justify-content: center;
     gap: var(--gap);
-    z-index: 1000;
+    z-index: 1001;
   }
 
   .archiveEntryPagerButton {
