@@ -13,6 +13,7 @@ export const SESSION_STORAGE_KEYS = {
   SORTING: 'outside-observations-archive-sorting',
   SEARCH_RESULTS: 'outside-observations-archive-search-results',
   SEARCH_STATUS: 'outside-observations-archive-search-status',
+  ENTRY_RETURN: 'outside-observations-archive-entry-return',
 };
 
 export function isValidArchiveView(value) {

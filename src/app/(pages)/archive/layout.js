@@ -4,6 +4,7 @@ import {
 } from '@/app/_data/getPaginatedArchivePage';
 import MoodPanelHost from '@/app/_components/Archive/features/navigation/MoodPanelHost';
 import ArchiveEntriesProvider from '@/app/_components/Archive/providers/ArchiveEntriesProvider';
+import ArchiveEntryReturnTracker from '@/app/_components/Archive/features/entry/ArchiveEntryReturnTracker';
 import ClosedArchiveRedirect from '@/app/_components/Archive/features/unexpected/ClosedArchiveRedirect';
 import { ErrorBoundary } from '@/app/_components/shared/error/ErrorBoundary';
 import { useTimezoneRedirect } from '@/lib/closedArchiveHours';
@@ -27,6 +28,7 @@ export default async function ArchiveLayout({ children }) {
     <>
       {children}
       <MoodPanelHost />
+      <ArchiveEntryReturnTracker />
     </>
   );
 

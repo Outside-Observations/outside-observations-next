@@ -2,11 +2,25 @@
 
 import { useRouter } from 'next/navigation';
 import styles from '@app/_assets/archive/archive-entry.module.css';
+import { readEntryReturn } from '@/app/_components/Archive/state/entryReturnPath';
 
 export default function ArchiveEntryBackdrop({ children, entry }) {
   const router = useRouter();
 
   const handleBackdropClick = () => {
+    // Opened from another archive page (Unexpected Connections...): go back
+    // there. Straight from it, a history step restores the page as it was
+    // (Unexpected Connections draws a new pair on every render).
+    const entryReturn = readEntryReturn();
+    if (entryReturn) {
+      if (entryReturn.steps === 0) {
+        router.back();
+      } else {
+        router.push(entryReturn.path);
+      }
+      return;
+    }
+
     let view = null;
     if (typeof window !== 'undefined') {
       view = new URLSearchParams(window.location.search).get('view');
