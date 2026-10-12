@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server'
 import { resolvePageType } from '@/lib/resolvePageType'
 import { useTimezoneRedirect, isInClosedHours } from '@/lib/closedArchiveHours'
+import {
+  ACCESS_COOKIE,
+  ACCESS_PATH,
+  getAccessPassword,
+  hasValidAccessToken,
+  sanitizeNextPath,
+} from '@/lib/siteAccess'
+
+// Files from /public (logo, favicons, robots) stay reachable from the gate
+const PUBLIC_FILE = /\.(png|jpe?g|gif|svg|ico|webp|avif|txt|xml|webmanifest|js|css|woff2?|otf|ttf)$/i
 
 /** Next.js Link / router.prefetch — 401 + WWW-Authenticate here triggers the browser auth UI on unrelated pages. */
 function isNextRouterPrefetch(request) {
@@ -10,8 +20,50 @@ function isNextRouterPrefetch(request) {
   )
 }
 
-export function middleware(request) {
+function noIndex(response) {
+  response.headers.set('X-Robots-Tag', 'noindex, nofollow')
+  return response
+}
+
+/**
+ * Preview password gate (see src/lib/siteAccess.js). Returns a response when
+ * the request must be answered here, null to let it through.
+ */
+async function handleAccessGate(request, pathname) {
+  if (!getAccessPassword()) {
+    return pathname === ACCESS_PATH
+      ? NextResponse.redirect(new URL('/', request.url))
+      : null
+  }
+
+  if (pathname !== ACCESS_PATH && PUBLIC_FILE.test(pathname)) return null
+
+  const hasAccess = await hasValidAccessToken(request.cookies.get(ACCESS_COOKIE)?.value)
+
+  if (pathname === ACCESS_PATH) {
+    if (!hasAccess) return null
+    const next = sanitizeNextPath(request.nextUrl.searchParams.get('next'))
+    return noIndex(NextResponse.redirect(new URL(next, request.url)))
+  }
+
+  if (hasAccess) return null
+
+  // A prefetch must not land on the gate page
+  if (isNextRouterPrefetch(request)) {
+    return noIndex(new NextResponse(null, { status: 401 }))
+  }
+
+  const gateUrl = new URL(ACCESS_PATH, request.url)
+  const next = pathname + request.nextUrl.search
+  if (next !== '/') gateUrl.searchParams.set('next', next)
+  return noIndex(NextResponse.redirect(gateUrl))
+}
+
+export async function middleware(request) {
   const pathname = request.nextUrl.pathname
+
+  const gateResponse = await handleAccessGate(request, pathname)
+  if (gateResponse) return gateResponse
 
   // Returning visitors skip the home intro. Done here rather than in the
   // page: reading the cookie in the page made the home render on every
@@ -92,8 +144,8 @@ export function middleware(request) {
   const response = NextResponse.next()
 
   const host = request.headers.get('host') || ''
-  if (host.endsWith('.netlify.app')) {
-    response.headers.set('X-Robots-Tag', 'noindex, nofollow')
+  if (host.endsWith('.netlify.app') || getAccessPassword()) {
+    noIndex(response)
   }
   response.headers.set('x-page-type', pageType)
   response.headers.set('x-pathname', pathname)

@@ -1,0 +1,270 @@
+/* Preview password gate. Built from the site's own pieces: the five column
+   lines, the logo, an Oracle title and the ring of eight dots from the
+   first-visit animation, here filling up as the password is typed. */
+
+.page {
+  --ring-size: 200px;
+  --dot-size: 8px;
+  --exit-time: 0.9s;
+  --exit-ease: cubic-bezier(0.7, 0, 0.2, 1);
+
+  position: relative;
+  height: 100dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 34px var(--padding) 40px;
+}
+
+/* Same lines as the site, sliding down on arrival like the first loader */
+.lines {
+  animation: linesIn 0.8s linear both;
+}
+
+.logo,
+.title,
+.message,
+.submit,
+.input {
+  position: relative;
+  z-index: 1;
+  transition: opacity 0.5s var(--transition-effect);
+}
+
+.logo {
+  flex: none;
+  animation: fadeIn 0.6s var(--transition-effect) 0.3s both;
+}
+
+.gate {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 40px;
+}
+
+.title {
+  font-family: var(--oracle-font-family);
+  font-weight: 700;
+  font-size: 65px;
+  line-height: 1;
+  letter-spacing: -0.07em;
+  text-align: center;
+  margin-bottom: 56px;
+  animation: riseIn 0.7s var(--transition-effect) 0.45s both;
+}
+
+/* ------------------------------ Ring ------------------------------ */
+
+.ring {
+  position: relative;
+  width: var(--ring-size);
+  height: var(--ring-size);
+  display: grid;
+  place-items: center;
+  cursor: text;
+}
+
+/* Each dot sits at the top of its own arm, rotated into place: moving a
+   dot along its arm moves it straight out from the centre. */
+.arm {
+  position: absolute;
+  inset: 0;
+  transform: rotate(calc(var(--i) * 45deg));
+  pointer-events: none;
+  animation: fadeIn 0.5s var(--transition-effect) both;
+  animation-delay: calc(0.7s + var(--i) * 0.08s);
+}
+
+.dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--dot-size);
+  height: var(--dot-size);
+  margin: calc(var(--dot-size) / -2) 0 0 calc(var(--dot-size) / -2);
+  border-radius: 50%;
+  background-color: var(--gray-color);
+  transition:
+    background-color 0.25s var(--transition-effect),
+    transform var(--exit-time) var(--exit-ease);
+}
+
+.dot[data-filled="true"] {
+  background-color: var(--fg-color);
+  animation: dotPop 0.3s var(--transition-effect);
+}
+
+/* Empty field: the first dot breathes, like a caret */
+.page[data-status="idle"] .arm:first-child .dot[data-filled="false"] {
+  animation: dotBreathe 1.4s ease-in-out infinite;
+}
+
+.input {
+  width: calc(var(--ring-size) - 64px);
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0.3em;
+  caret-color: var(--fg-color);
+  animation: fadeIn 0.6s var(--transition-effect) 1.3s both;
+}
+
+.input::placeholder {
+  font-size: 11px;
+  letter-spacing: 0;
+  opacity: 1;
+}
+
+/* Checking: the dots pass a light around the ring */
+.page[data-status="checking"] .dot {
+  background-color: var(--fg-color);
+  animation: dotChase 0.8s linear infinite;
+  animation-delay: calc(var(--i) * 0.1s);
+}
+
+/* Wrong password: the ring shakes its head and empties */
+.page[data-status="error"] .ring {
+  animation: ringShake 0.45s var(--transition-effect);
+}
+
+/* Right password: the ring fills, then the dots fly out to the edges
+   while the rest of the page fades away */
+.page[data-status="success"] .dot {
+  transform: translateY(-120vmax);
+  transition-delay: calc(0.25s + var(--i) * 0.03s);
+}
+
+.page[data-status="success"] .logo,
+.page[data-status="success"] .title,
+.page[data-status="success"] .input,
+.page[data-status="success"] .submit {
+  opacity: 0;
+  transition-delay: 0.2s;
+}
+
+.page[data-status="success"] .message {
+  transition-delay: 0.6s;
+  opacity: 0;
+}
+
+/* ----------------------------- Footer ----------------------------- */
+
+.message {
+  max-width: 280px;
+  min-height: 42px;
+  margin: 44px 0 20px;
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  animation: fadeIn 0.6s var(--transition-effect) 1.3s both;
+}
+
+.submit {
+  /* Roomy hit area around the word, mostly for thumbs */
+  padding: 8px 16px;
+  font-family: var(--oracle-font-family);
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.07em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  animation: fadeIn 0.6s var(--transition-effect) 1.4s both;
+}
+
+.submit:disabled {
+  cursor: default;
+  opacity: 0.3;
+}
+
+/* ---------------------------- Keyframes ---------------------------- */
+
+@keyframes linesIn {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dotPop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.6); }
+  100% { transform: scale(1); }
+}
+
+@keyframes dotBreathe {
+  0%, 100% { background-color: var(--gray-color); }
+  50% { background-color: var(--fg-color); }
+}
+
+@keyframes dotChase {
+  0%, 100% { opacity: 0.2; }
+  12% { opacity: 1; }
+}
+
+@keyframes ringShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+
+/* ----------------------------- Mobile ----------------------------- */
+
+@media (max-width: 768px) {
+  .page {
+    --ring-size: 170px;
+    --dot-size: 7px;
+
+    padding-top: 16px;
+  }
+
+  .title {
+    font-size: 38px;
+    margin-bottom: 40px;
+  }
+
+  .input {
+    font-size: 16px; /* below 16px iOS zooms into the field */
+  }
+
+  .message {
+    font-size: 12px;
+    line-height: 15px;
+    margin-top: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lines,
+  .logo,
+  .title,
+  .arm,
+  .input,
+  .message,
+  .submit,
+  .dot,
+  .ring {
+    animation: none !important;
+  }
+
+  .page[data-status="success"] .dot {
+    transform: none;
+  }
+}

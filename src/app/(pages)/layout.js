@@ -1,7 +1,7 @@
-import localFont from 'next/font/local';
 import '@app/_assets/variables.css';
 import '@app/_assets/globals.css';
 import styles from '@app/_assets/main.module.css';
+import { abcOracle } from '@app/_assets/fonts/abcOracle';
 import Script from 'next/script';
 import HeaderNav from '@app/_components/layout/HeaderNav';
 import { getSiteSettings } from '@/app/_data/archive';
@@ -57,18 +57,6 @@ const websiteJsonLd = {
     'query-input': 'required name=search_term_string',
   },
 };
-
-const abcOracle = localFont({
-  src: [
-    { path: '../_assets/fonts/ABCOracle-Regular.otf', weight: '400', style: 'normal' },
-    { path: '../_assets/fonts/ABCOracle-RegularItalic.otf', weight: '400', style: 'italic' },
-    { path: '../_assets/fonts/ABCOracle-Medium.otf', weight: '500', style: 'normal' },
-    { path: '../_assets/fonts/ABCOracle-Bold.otf', weight: '700', style: 'normal' },
-    { path: '../_assets/fonts/ABCOracle-BoldItalic.otf', weight: '700', style: 'italic' },
-  ],
-  variable: '--font-oracle',
-  display: 'swap',
-});
 
 export default async function RootLayout({ children }) {
   const siteSettings = await getSiteSettings();
