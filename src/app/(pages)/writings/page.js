@@ -30,7 +30,7 @@ const getWritingsData = unstable_cache(
 );
 
 export async function generateMetadata() {
-  const title = `Writings | ${SITE_NAME}`;
+  const title = `Editorial | ${SITE_NAME}`;
   const description = `Essays and editorial writing by ${SITE_NAME} - on images, looking, and what wasn't made to be seen.`;
   const canonicalUrl = `${SITE_URL}/writings`;
 
@@ -51,7 +51,7 @@ export async function generateMetadata() {
 const collectionJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  name: `${SITE_NAME} - Writings`,
+  name: `${SITE_NAME} - Editorial`,
   url: `${SITE_URL}/writings`,
   isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: SITE_URL },
 };

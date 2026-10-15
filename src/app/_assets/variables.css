@@ -26,6 +26,8 @@
   --font-family: 'courier', monospace;
   --oracle-font-family: var(--font-oracle, 'Arial'), sans-serif;
   --archive-hero-block: 0px;
+  /* Announcement strip at the top (AnnouncementBar), 0 once closed */
+  --announcement-height: var(--bubble-height);
   --font-weight: 400;
   --font-size: 10px;
   --line-height: 10px;
@@ -77,7 +79,7 @@
     --responsive-padding: 4px;
     /* Breathing room above the centred logo, and the anchor every
        fixed header offset below is measured from. */
-    --mobile-header-top: 16px;
+    --mobile-header-top: calc(16px + var(--announcement-height));
 
     --columns: 6;
     --first-line-offset: calc(var(--padding) + var(--column-width) * 1  + var(--column-gap) * 0 + var(--column-gap-half));
@@ -108,4 +110,8 @@ body[data-page="archive"] {
   body[data-page="archive"] {
     --archive-hero-base: 66px;
   }
+}
+
+html[data-announcement="hidden"] {
+  --announcement-height: 0px;
 }

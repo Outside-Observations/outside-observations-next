@@ -12,6 +12,10 @@
   and structured data (schema.org VisualArtwork).
 - /archive/unexpected-connections: an AI-assisted comparison of two works.
 - /archive/widline-cadet: featured artist collaboration.
+- /writings: Editorial, essays and texts on images and ways of seeing. Each
+  article has its own page (/writings/<slug>).
+- /lab: Work with us, how to work with Outside Observations (strategy,
+  curation, art direction) and how to get in touch.
 
 ## Usage policy
 

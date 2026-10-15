@@ -133,6 +133,11 @@
 }
 
 @media screen and (max-width: 768px) {
+  /* Follows the mobile header, which starts lower under the announcement */
+  .container {
+    margin-top: calc(var(--mobile-header-top) + 41px + 38px);
+  }
+
   .container {
     --writings-tracks: minmax(0, 1fr) auto;
   }

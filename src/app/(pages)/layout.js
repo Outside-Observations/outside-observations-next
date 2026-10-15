@@ -22,6 +22,7 @@ import CookieConsentBanner from '@/app/_components/shared/CookieConsentBanner';
 import FirstVisitIntro from '@/app/_components/Home/FirstVisitIntro';
 import { GA4_MEASUREMENT_ID } from '@/app/_helpers/analytics/gtag';
 import { SITE_NAME, SITE_URL } from '@/lib/siteUrl';
+import { ANNOUNCEMENT_ID, ANNOUNCEMENT_STORAGE_KEY } from '@/app/_components/layout/announcementConfig';
 
 export const metadata = {
   title: SITE_NAME,
@@ -96,6 +97,10 @@ export default async function RootLayout({ children }) {
             gtag('js', new Date());
             gtag('config', '${GA4_MEASUREMENT_ID}');
           `}
+        </Script>
+        {/* Hides a closed announcement before paint (see AnnouncementBar) */}
+        <Script id="announcement-guard" strategy="beforeInteractive">
+          {`try{if(localStorage.getItem('${ANNOUNCEMENT_STORAGE_KEY}')==='${ANNOUNCEMENT_ID}')document.documentElement.setAttribute('data-announcement','hidden')}catch(e){}`}
         </Script>
         <Script id="intro-flash-guard" strategy="beforeInteractive">
           {`try{if(!localStorage.getItem('has_visited_website'))document.documentElement.setAttribute('data-intro','pending')}catch(e){}`}

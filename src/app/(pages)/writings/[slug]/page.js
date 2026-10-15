@@ -101,7 +101,7 @@ function ArticleJsonLd({ article }) {
     publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
     isPartOf: {
       '@type': 'CollectionPage',
-      name: `${SITE_NAME} - Writings`,
+      name: `${SITE_NAME} - Editorial`,
       url: `${SITE_URL}/writings`,
     },
   };

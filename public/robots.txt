@@ -6,7 +6,6 @@
 
 User-agent: *
 Allow: /
-Disallow: /lab
 Disallow: /studio
 Disallow: /vector-store
 Disallow: /api

@@ -41,6 +41,11 @@ export default async function sitemap() {
       priority: 0.8,
     },
     {
+      url: `${SITE_URL}/lab`,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
       url: `${SITE_URL}/privacy`,
       changeFrequency: 'monthly',
       priority: 0.3,

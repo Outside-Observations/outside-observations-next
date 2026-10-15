@@ -28,7 +28,8 @@
 @media screen and (max-width: 768px) {
   /* Still one line on a phone: scales down with the width on the narrowest */
   .archiveHero {
-    top: calc(34px + 41px + 20px);
+    /* Follows the mobile header, which starts lower under the announcement */
+    top: calc(var(--mobile-header-top) + 41px + 38px);
     font-size: min(30px, 8.3vw);
   }
 }

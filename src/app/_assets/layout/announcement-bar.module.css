@@ -1,0 +1,91 @@
+/* Announcement strip along the very top of the site. On desktop it sits in
+   the free space above the logo and menu (34px), so nothing moves. On
+   mobile the header starts lower by its height (--mobile-header-top in
+   variables.css). Lives inside the header: it fades with it (first visit,
+   entry pages) and stays under the mobile menu's blurred veil. */
+.bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  height: var(--announcement-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 calc(var(--bubble-height) + var(--padding));
+  background-color: var(--fg-color);
+  color: var(--bg-color);
+  font-family: var(--oracle-font-family);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  pointer-events: auto;
+}
+
+:global(html[data-announcement="hidden"]) .bar {
+  display: none;
+}
+
+/* Clipped for the ellipsis on narrow screens: the line box must be taller
+   than the letters, or the clip hides the underline drawn below them. */
+.link {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 17px;
+}
+
+/* The visible link: always underlined, hover included, so the bar reads
+   as clickable (the whole sentence is the link) */
+.cta {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.link {
+  transition: opacity var(--transition-time) var(--transition-effect);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    opacity: 0.7;
+  }
+}
+
+/* Cross, drawn like the radio player's close button */
+.close {
+  position: absolute;
+  top: 0;
+  right: var(--padding);
+  width: var(--bubble-height);
+  height: var(--bubble-height);
+}
+
+.close::before,
+.close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 9px;
+  height: 1px;
+  background-color: currentColor;
+}
+
+.close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+@media (max-width: 768px) {
+  .bar {
+    font-size: 10px;
+    padding-left: 10px;
+    justify-content: flex-start;
+  }
+}

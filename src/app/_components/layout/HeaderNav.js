@@ -15,6 +15,7 @@ import MobileMenuButton from '@/app/_components/layout/MobileMenuButton';
 import HelpNav from '@/app/_components/layout/HelpNav';
 import NewsletterPopup from '@/app/_components/layout/NewsletterPopup';
 import MenuNewsletter from '@/app/_components/layout/MenuNewsletter';
+import AnnouncementBar from '@/app/_components/layout/AnnouncementBar';
 import { useRadioIframe } from '@/app/_components/shared/RadioIframeProvider';
 import {
   trackNavClick,
@@ -67,6 +68,7 @@ export default function HeaderNav({ newsletterTitle, newsletterDescription }) {
 
   return (
     <header id="main-header" className={styles.header}>
+      <AnnouncementBar />
       <div className={styles.headerTopRow}>
         <div className={styles.navTitleContainer}>
           <div className={styles.navTitle}>
